@@ -1,0 +1,16 @@
+name: fresco
+channels:
+  - conda-forge
+dependencies:
+  - python=3.9
+  - numpy>=1.21.5
+  - scipy>=1.7.3
+  - matplotlib>=2.2.2
+  - dill>=0.3.5.1
+  - tqdm>=4.64.0
+  - h5py
+  - numba>=0.55.1
+  - statsmodels>=0.13.2
+  - daiquiri>=3.0.0
+  - cython=0.29.32
+  - future>=0.18.2

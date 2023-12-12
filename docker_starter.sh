@@ -1,0 +1,1 @@
+docker run -v ./sandbox:/usr/src/app/host_sandbox --rm -it frescontainer bash

@@ -1,0 +1,54 @@
+# this file is meant to be parsed by python before being a proper CMakeLists.txt file
+# in particular, the following strings will be set by python
+
+
+#################################### petsc #############################################
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
+
+
+set(numpy_include __NUMPY_INCLUDE__)
+set(PYTHON_INCLUDE_DIRS __PYTHON_INCLUDE__)
+__FINUFFT_INCLUDE__
+set(PYTHON_LDFLAGS "__PYTHON_LDFLAGS__")
+
+message("python include dirs: ${PYTHON_INCLUDE_DIRS}")
+message("C include dirs: ${C_INCLUDE_DIRS}")
+message("numpy include dirs: ${numpy_include}")
+include_directories(${numpy_include})
+include_directories(${PYTHON_INCLUDE_DIRS})
+include_directories(${C_INCLUDE_DIRS})
+
+cmake_minimum_required(VERSION 2.8)
+
+enable_language(CXX)
+SET(CMAKE_CXX_FLAGS __COMPILER_EXTRA_ARGS__)
+
+#cmake_policy(SET CMP0015 NEW)
+
+# set the hyperalg include directory
+set(hyperalg_include ${CMAKE_SOURCE_DIR}/source)
+include_directories(${hyperalg_include})
+message("hyperalg include directory: ${hyperalg_include}")
+
+
+# build the pele library
+# NOTE: GLOBBING MIGHT BE A BAD IDEA WHEN ADDING FILES https://stackoverflow.com/questions/1027247/is-it-better-to-specify-source-files-with-glob-or-each-file-individually-in-cmake
+# This is a likely source of undefined symbol errors
+FILE(GLOB hyperalg_sources ${hyperalg_include}/*.c*)
+
+add_library(hyperalg_lib SHARED ${hyperalg_sources})
+
+# build the hyperalg library
+
+function(make_cython_lib cython_cxx_source)
+  get_filename_component(library_name ${cython_cxx_source} NAME)
+  string(REGEX REPLACE ".cxx$" "" library_name ${library_name})
+  add_library(${library_name} SHARED ${cython_cxx_source})
+  target_link_libraries(${library_name} PUBLIC hyperalg_lib) 
+  __FINUFFT_LIBRARY__
+  set_target_properties(${library_name} PROPERTIES PREFIX "")
+  message("making library ${library_name} from source ${cython_cxx_source}")
+endfunction(make_cython_lib)
+
+
