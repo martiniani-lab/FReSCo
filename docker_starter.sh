@@ -1,1 +1,1 @@
-docker run -v ./sandbox:/usr/src/app/host_sandbox --rm -it frescontainer bash
+docker run -v ./examples:/usr/src/app/host_examples --rm -it frescontainer bash
