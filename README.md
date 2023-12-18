@@ -1,6 +1,19 @@
 # FReSCo
 Fast Reciprocal Space Correlator
 
+FResCO is an algorithm to impose reciprocal-space (aka Fourier-space, k-space) constraints on a real space system. For example, starting from a random point pattern, we can adjust the positions of the points to find a point pattern whose structure factor looks like Van Gogh's Starry Night:
+
+![](./images/fresco_diagram.png)
+
+This is achievable in quasilinear time largely due to the FINUFFT package https://finufft.readthedocs.io/en/latest/index.html. We borrow their formalism to describe our real- and reciprocal-spaces as 'uniform' (i.e. a grid of intensity values) and 'non-uniform' (a set of point coordinates in continuous space).
+Below, we show our algorithm's handling of all permutations of real- and reciprocal-spaces.
+For uniform reciprocal-space examples, the imposed structure factor was $S(k)=0$ for a circle centered at $k=0$.
+For non-uniform reciprocal-space examples, peaks were imposed in the structure factor at the locations marked with red circles.
+The structure factors depicted below are the measured structure factors of the resulting systems.
+
+![](./images/uniform_nonuniform.png)
+
+We recommend reading our preprint *Fast Generation of Spectrally-Shaped Disorder* at https://arxiv.org/abs/2305.15693 for more in-depth details of our algorithm.
 
 ## Installation - Docker
 
