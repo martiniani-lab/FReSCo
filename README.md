@@ -63,14 +63,20 @@ Run `setup.py` as follows (the flag --omp is optional for allowing parallelizati
 
 (If at any point you would like to rebuild the package from scratch, please run `rm -r build/ cythonize.dat` before running `setup` using the previous line again)
 
+If you are using Jupyter notebooks, create a kernel from the conda environment as follows:
+
+`python -m ipykernel install --user --name=fresco`
+
 Optional packages for some examples:
 
 `pip install jscatter`
 
 ## Usage
 
-Remember to add `/path/to/FReSCo` to your `PYTHONPATH` in `~/.bashrc` and either run `source ~/.bashrc`
+Remember to add `:/path/to/FReSCo` to your `PYTHONPATH` environment in `~/.bashrc` and either run `source ~/.bashrc`
  or restart your terminal update with these changes.
+
+If you are using Jupyter notebooks, you will also have to add it to your `JUPYTER_PATH` in the same way. 
 
 Our 'potentials' ('loss functions' if that's more your persuasion) can be imported by name:
 
