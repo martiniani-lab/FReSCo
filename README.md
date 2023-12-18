@@ -32,6 +32,8 @@ Run `setup.py` as follows (the flag --omp is optional for allowing parallelizati
 
 `python setup.py build_ext -i --omp`
 
+(If at any point you would like to rebuild the package from scratch, please run `rm -r build/ cythonize.dat` before running `setup` using the previous line again)
+
 Optional packages for some examples:
 
 `pip install jscatter`
