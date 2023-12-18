@@ -17,7 +17,23 @@ We recommend reading our preprint *Fast Generation of Spectrally-Shaped Disorder
 
 ## Installation - Docker
 
-We recommend installing using a Docker container
+We recommend installing using a Docker container. In particular, it is by far the easiest solution on MacOS.
+The Dockerfile contains the minimal setup for the container. To build a container called frescontainer with a cloned, simply run
+
+`./docker_build.sh`
+
+This may take a few minutes on the first build.
+Then, either run
+
+`./docker_starter.sh`
+
+to enter the container and run code directly from it, or run
+
+`./docker_build.sh my_command`
+
+to run commands in the container from the outside.
+By default, docker_build mounts the examples directory into the docker environment so that outputs are easily accessible from the outside.
+
 
 ## Installation - conda
 
