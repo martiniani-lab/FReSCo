@@ -26,26 +26,26 @@ SET(CMAKE_CXX_FLAGS __COMPILER_EXTRA_ARGS__)
 
 #cmake_policy(SET CMP0015 NEW)
 
-# set the hyperalg include directory
-set(hyperalg_include ${CMAKE_SOURCE_DIR}/source)
-include_directories(${hyperalg_include})
-message("hyperalg include directory: ${hyperalg_include}")
+# set the FReSCo include directory
+set(fresco_include ${CMAKE_SOURCE_DIR}/source)
+include_directories(${fresco_include})
+message("FReSCo include directory: ${fresco_include}")
 
 
 # build the pele library
 # NOTE: GLOBBING MIGHT BE A BAD IDEA WHEN ADDING FILES https://stackoverflow.com/questions/1027247/is-it-better-to-specify-source-files-with-glob-or-each-file-individually-in-cmake
 # This is a likely source of undefined symbol errors
-FILE(GLOB hyperalg_sources ${hyperalg_include}/*.c*)
+FILE(GLOB fresco_sources ${fresco_include}/*.c*)
 
-add_library(hyperalg_lib SHARED ${hyperalg_sources})
+add_library(fresco_lib SHARED ${fresco_sources})
 
-# build the hyperalg library
+# build the FReSCo library
 
 function(make_cython_lib cython_cxx_source)
   get_filename_component(library_name ${cython_cxx_source} NAME)
   string(REGEX REPLACE ".cxx$" "" library_name ${library_name})
   add_library(${library_name} SHARED ${cython_cxx_source})
-  target_link_libraries(${library_name} PUBLIC hyperalg_lib) 
+  target_link_libraries(${library_name} PUBLIC fresco_lib) 
   __FINUFFT_LIBRARY__
   set_target_properties(${library_name} PROPERTIES PREFIX "")
   message("making library ${library_name} from source ${cython_cxx_source}")

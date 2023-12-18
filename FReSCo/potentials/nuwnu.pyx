@@ -8,9 +8,7 @@ import warnings
 
 cdef class _Cdef_NUwNU(_fresco.BasePotential):
     def __cinit__(self, np.ndarray radii, np.ndarray K, np.ndarray Sk, np.ndarray V, 
-                        np.ndarray L, double eps=1e-6,
-                        int err_mode = 1, int rseed=123, int noisetype=0, 
-                        double stdev = 0.0):
+                        np.ndarray L, double eps=1e-6):
         self.radii = radii
         self.N = len(radii)
         self.K = K
@@ -20,13 +18,9 @@ cdef class _Cdef_NUwNU(_fresco.BasePotential):
         self.L = L
         self.ndim = len(L)
         self.eps = eps
-        self.err_mode = err_mode
-        self.rseed = rseed
-        self.noisetype = noisetype
-        self.stdev = stdev
         self.grad = np.zeros(self.N*self.ndim)
         self.thisptr = shared_ptr[_fresco.cppBasePotential](<_fresco.cppBasePotential*>new 
-        cppNUwNU(self.radii, self.K, self.Sk, self.V, self.L, self.eps, self.err_mode, self.rseed, self.noisetype, self.stdev))
+        cppNUwNU(self.radii, self.K, self.Sk, self.V, self.L, self.eps))
 
     def get_energy(self, x):
         cdef double energy = (<cppNUwNU*>self.thisptr.get()).get_energy(x)
@@ -38,7 +32,7 @@ cdef class _Cdef_NUwNU(_fresco.BasePotential):
 
     def __reduce__(self):
         d = {}
-        return (self.__class__, (self.radii, self.K, self.Sk, self.V, self.L, self.eps, self.err_mode, self.rseed, self.noisetype, self.stdev), d)
+        return (self.__class__, (self.radii, self.K, self.Sk, self.V, self.L, self.eps), d)
 
     def __setstate__(self, d):
         pass

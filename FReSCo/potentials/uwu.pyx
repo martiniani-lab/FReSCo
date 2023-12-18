@@ -8,9 +8,7 @@ import warnings
 
 cdef class _Cdef_UwU(_fresco.BasePotential):
     def __cinit__(self, np.ndarray N, double K, np.ndarray Sk, np.ndarray V, 
-                        np.ndarray L, double eps=1e-6, double beta=100, double gamma=0.1, 
-                        int err_mode = 1, int pin_Sk=0, int rseed=123, int noisetype=0, 
-                        double stdev = 0.0):
+                        np.ndarray L, double eps=1e-6):
         self.K = K
         self.N = N
         self.Sk = Sk.ravel()
@@ -19,16 +17,9 @@ cdef class _Cdef_UwU(_fresco.BasePotential):
         self.L = L
         self.ndim = len(L)
         self.eps = eps
-        self.beta = beta
-        self.gamma = gamma
-        self.err_mode = err_mode
-        self.pin_Sk = pin_Sk
-        self.rseed = rseed
-        self.noisetype = noisetype
-        self.stdev = stdev
         self.grad = np.zeros(N).ravel()
         self.thisptr = shared_ptr[_fresco.cppBasePotential](<_fresco.cppBasePotential*>new 
-        cppUwU(self.N, self.K, self.Sk, self.V, self.L, self.eps, self.beta, self.gamma, self.err_mode, self.pin_Sk, self.rseed, self.noisetype, self.stdev))
+        cppUwU(self.N, self.K, self.Sk, self.V, self.L, self.eps))
 
     def get_energy(self, x):
         cdef double energy = (<cppUwU*>self.thisptr.get()).get_energy(x)
@@ -40,7 +31,7 @@ cdef class _Cdef_UwU(_fresco.BasePotential):
 
     def __reduce__(self):
         d = {}
-        return (self.__class__, (self.N, self.K, self.Sk, self.V, self.L, self.eps, self.beta, self.gamma, self.err_mode, self.pin_Sk, self.rseed, self.noisetype, self.stdev), d)
+        return (self.__class__, (self.N, self.K, self.Sk, self.V, self.L, self.eps), d)
 
     def __setstate__(self, d):
         pass

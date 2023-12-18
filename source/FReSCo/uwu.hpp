@@ -16,12 +16,10 @@ namespace fresco{
 
 class UwU: public BasePotential{
     public:
-        const size_t ndim; //dimension
         const std::vector<double> L; // box dimensions
         const std::vector<int> N; // grid size
+        const size_t ndim; //dimension
         const double K; // Max K magnitude
-        const double beta; // Error threshhold sharpness
-        const double gamma; // Error threshhold dilation
         const double eps; // finufft error tolerance
         const std::vector<int> Kvec; // Wavevectors (units of 2M_PI)
         const std::vector<double> Kmag; // Wavevector magnitudes (units of 2M_PI)
@@ -30,33 +28,19 @@ class UwU: public BasePotential{
         std::complex<double>* c; // Point weights
         std::complex<double>* rho; // Point weights
         std::complex<double>* f; // Point weights
-        const int error_mode; //Form of U(k) to be used
-        const int pin_Sk; //Force continuity
-        const int noisetype; // 0 for none, 1 for normal, 2 for uniform
-        std::mt19937_64 generator; // rng generator
-        std::normal_distribution<double> normal_distribution; // normal distribution
-        std::uniform_real_distribution<double> uniform_distribution; // normal distribution
         fftw_plan plan1;
         fftw_plan plan2;
 
-        UwU(std::vector<int> _N, double _K, std::vector<double> _Sk, std::vector<double> _V, std::vector<double> _L, double _eps, double _beta, double _gamma, int _error_mode, int _pin_Sk, int _rseed, int _noisetype, double _stdev)
+        UwU(std::vector<int> _N, double _K, std::vector<double> _Sk, std::vector<double> _V, std::vector<double> _L, double _eps)
         : L(_L),
           N(_N),
           ndim(_L.size()),
           K(_K),
+          eps(_eps),
           Kvec(calculate_Kvec(_V.size())),
           Kmag(calculate_Kmag(Kvec)),
           Sk0(_Sk),
-          V(_V),
-          eps(_eps),
-          beta(_beta),
-          gamma(_gamma),
-          error_mode(_error_mode),
-          pin_Sk(_pin_Sk),
-          noisetype(_noisetype),
-          generator(size_t(_rseed)),
-          normal_distribution(0.0, _stdev),
-          uniform_distribution(-_stdev,_stdev)
+          V(_V)
         {
           c = (std::complex<double>*) fftw_malloc(_Sk.size()*sizeof(std::complex<double>));
           rho = (std::complex<double>*) fftw_malloc(_Sk.size()*sizeof(std::complex<double>));
@@ -123,26 +107,9 @@ class UwU: public BasePotential{
             }
         }
 
-        void calculate_U(double& U, double& dU, double Skdiff2, double Kval)
-        {
-            if(error_mode == 0)
-            {
-                U = 1;
-                dU = 0;
-                return;
-            }
-            U = 1/(1+exp(beta*(gamma*(1+Kval/K)-Skdiff2)));
-            dU = beta*U*(1-U);
-            if(error_mode == 2 && U < 0.2)
-            {
-                U = 0;
-                dU = 0;
-            }
-            return;
-        }
         virtual double get_energy(const std::vector<double>& points)
         {
-            double Skdiff, Skdiff2, U, dU, Skref, rhoref, Sk0ref, noise;
+            double Skdiff, Skdiff2;
             double phi = 0.0;
             double rhotot = 0.0;
             #pragma omp parallel for
@@ -153,51 +120,25 @@ class UwU: public BasePotential{
             }
             fftw_execute(plan1);
             
-	    if (pin_Sk > 0)
-            {
-                Skref = 0;
-                Sk0ref = 0;
-                #pragma omp parallel for
-                for (size_t i = 0; i < points.size(); i++)
-                {
-                    if (Kmag[i]>K && Kmag[i]<K+10)
-                    {
-	                rhoref = std::real(std::abs(rho[i]));
-                        Skref += rhoref*rhoref/rhotot;
-                        Sk0ref += Sk0[i];
-                    }
-                }
-                Skref /= Sk0ref;
-                //std::cout << Skref << '\n';
-            }
-            else
-                Skref = 1.0;
             for (size_t i = 0; i < points.size(); i++)
 	    {
-                if (noisetype == 1)
-                    noise = normal_distribution(generator)*Kmag[i]/K;
-                else if (noisetype == 2)
-                    noise = uniform_distribution(generator);
-                else
-                    noise = 0;
 	        Skdiff = std::real(std::abs(rho[i]));
              
-	        Skdiff = Skdiff*Skdiff/rhotot-(1+noise)*Sk0[i]*Skref;
+	        Skdiff = Skdiff*Skdiff/rhotot-Sk0[i];
                 if(Sk0[i] != 0)
                 {
-                    Skdiff /= Sk0[i]*Skref;
+                    Skdiff /= Sk0[i];
                 }
              
                 Skdiff2 = Skdiff*Skdiff;
-                calculate_U(U, dU, Skdiff2, Kmag[i]);
-	        phi += V[i]*U*Skdiff2;
+	        phi += V[i]*Skdiff2;
 	    } 
             return phi;
         }
 
         virtual double get_energy_gradient(const std::vector<double>& points, std::vector<double>& grad)
         {
-            double Skdiff, Skdiff2, U, dU, Skref, rhoref, Sk0ref, noise;
+            double Skdiff, Skdiff2;
             double phi = 0.0;
 	    grad.assign(grad.size(),0);
             double rhotot = 0.0;
@@ -209,48 +150,22 @@ class UwU: public BasePotential{
             }
             fftw_execute(plan1);
             
-	    if (pin_Sk > 0)
-            {
-                Skref = 0;
-                Sk0ref = 0;
-                #pragma omp parallel for
-                for (size_t i = 0; i < points.size(); i++)
-                {
-                    if (Kmag[i]>K && Kmag[i]<K+10)
-                    {
-	                rhoref = std::real(std::abs(rho[i]));
-                        Skref += rhoref*rhoref/rhotot;
-                        Sk0ref += Sk0[i];
-                    }
-                }
-                Skref /= Sk0ref;
-                //std::cout << Skref << '\n';
-            }
-            else
-                Skref = 1.0;
             for (size_t i = 0; i < points.size(); i++)
 	    {
-                if (noisetype == 1)
-                    noise = normal_distribution(generator)*Kmag[i]/K;
-                else if (noisetype == 2)
-                    noise = uniform_distribution(generator);
-                else
-                    noise = 0;
 	        Skdiff = std::real(std::abs(rho[i]));
              
-	        Skdiff = Skdiff*Skdiff/rhotot-(1+noise)*Sk0[i]*Skref;
+	        Skdiff = Skdiff*Skdiff/rhotot-Sk0[i];
                 if(Sk0[i] != 0)
                 {
-                    Skdiff /= Sk0[i]*Skref;
+                    Skdiff /= Sk0[i];
                 }
              
                 Skdiff2 = Skdiff*Skdiff;
-                calculate_U(U, dU, Skdiff2, Kmag[i]);
-	        phi += V[i]*U*Skdiff2;
-	        f[i] = 2/rhotot*V[i]*Skdiff*rho[i]*(U+Skdiff2*dU);
+	        phi += V[i]*Skdiff2;
+	        f[i] = 2/rhotot*V[i]*Skdiff*rho[i];
 	        if(Sk0[i] != 0)
                 {
-                    f[i] /= Sk0[i]*Skref;
+                    f[i] /= Sk0[i];
                 }
 	    } 
             

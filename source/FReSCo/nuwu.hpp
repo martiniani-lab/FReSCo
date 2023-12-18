@@ -17,12 +17,10 @@ namespace fresco{
 class NUwU: public BasePotential{
     //static const size_t ndim = 2;
     public:
-        const size_t ndim; //dimension
         const size_t N; // Number of particles
         const std::vector<double> L; // box dimensions
+        const size_t ndim; //dimension
         const double K; // max K magnitude to constrain
-        const double beta; // Error threshhold sharpness
-        const double gamma; // Error threshhold dilation
         const double eps; // finufft error tolerance
         const std::vector<int> Kvec; // Wavevectors (units of 2M_PI)
         const std::vector<double> Kmag; // Wavevector magnitudes (units of 2M_PI)
@@ -31,40 +29,22 @@ class NUwU: public BasePotential{
         const std::vector<double> radii; // Particle radii
         std::vector<std::complex<double>> c; // Point weights
         std::vector<std::complex<double>> dc; // Point weights
-        const int error_mode; //Form of U(k) to be used
-        const int pin_Sk; //Force continuity
-        const int noisetype; // 0 for none, 1 for normal, 2 for uniform
-        std::mt19937_64 generator; // rng generator
-        std::normal_distribution<double> normal_distribution; // normal distribution
-        std::uniform_real_distribution<double> uniform_distribution; // normal distribution
-        const int radial; //Constrain only the radial S(k) (i.e, perform an angular average)
         finufft_plan plan1;
         finufft_plan plan2;
-        const int periodic; //Whether to assume periodicity when calculating S(k)
 
-        NUwU(std::vector<double> _radii, double _K, std::vector<double> _Sk, std::vector<double> _V, std::vector<double> _L, double _eps, double _beta, double _gamma, int _error_mode, int _pin_Sk, int _rseed, int _noisetype, double _stdev, int _radial, int _periodic)
+        NUwU(std::vector<double> _radii, double _K, std::vector<double> _Sk, std::vector<double> _V, std::vector<double> _L, double _eps)
         : N(_radii.size()),
           L(_L),
           ndim(_L.size()),
           K(_K),
+          eps(_eps),
           Kvec(calculate_Kvec(_V.size())),
           Kmag(calculate_Kmag(Kvec)),
           Sk0(_Sk),
           V(_V),
           radii(_radii),
           c(initialize_c(_radii)),
-          dc(N*ndim),
-          eps(_eps),
-          beta(_beta),
-          gamma(_gamma),
-          error_mode(_error_mode),
-          pin_Sk(_pin_Sk),
-          noisetype(_noisetype),
-          generator(size_t(_rseed)),
-          normal_distribution(0.0, _stdev),
-          uniform_distribution(-_stdev,_stdev),
-          radial(_radial),
-          periodic(_periodic)
+          dc(N*ndim)
         {
             std::vector<int64_t> nmodes(ndim,Kvec.size());
             finufft_makeplan(1, ndim, &nmodes[0], +1, 1, eps, &plan1, NULL);
@@ -187,23 +167,6 @@ class NUwU: public BasePotential{
             return;
         }
 
-        void calculate_U(double& U, double& dU, double Skdiff2, double Kval)
-        {
-            if(error_mode == 0)
-            {
-                U = 1;
-                dU = 0;
-                return;
-            }
-            U = 1/(1+exp(beta*(gamma*(1+Kval/K)-Skdiff2)));
-            dU = beta*U*(1-U);
-            if(error_mode == 2 && U < 0.2)
-            {
-                U = 0;
-                dU = 0;
-            }
-            return;
-        }
         virtual double get_energy(const std::vector<double>& points)
         {
             std::vector<double> x(N); // x coordinate
@@ -240,53 +203,24 @@ class NUwU: public BasePotential{
             {
                 z = std::vector<double>(1);
             }
-            double Skdiff, Skdiff2, U, dU, Skref, rhoref, Sk0ref, noise;
+            double Skdiff, Skdiff2;
             double phi = 0.0;
-	    int Nk = Kvec.size();
-            if (periodic == 0){
-                update_c(points);
-            }
             
             finufft_setpts(plan1, N, &x[0], &y[0], &z[0], 0, &x[0], &y[0], &z[0]);
             finufft_execute(plan1, &c[0], &rho[0]);
             
-	    if (pin_Sk > 0)
-            {
-                Skref = 0;
-                Sk0ref = 0;
-                #pragma omp parallel for
-                for (size_t i = 0; i < rho.size(); i++)
-                {
-                    if (Kmag[i]>K && Kmag[i]<K+10)
-                    {
-	                rhoref = std::real(std::abs(rho[i]));
-                        Skref += rhoref*rhoref/N;
-                        Sk0ref += Sk0[i];
-                    }
-                }
-                Skref /= Sk0ref;
-            }
-            else
-                Skref = 1.0;
             for (size_t i = 0; i < rho.size(); i++)
 	    {
-                if (noisetype == 1)
-                    noise = normal_distribution(generator)*Kmag[i]/K;
-                else if (noisetype == 2)
-                    noise = uniform_distribution(generator);
-                else
-                    noise = 0;
 	        Skdiff = std::real(std::abs(rho[i]));
              
-	        Skdiff = Skdiff*Skdiff/N-(1+noise)*Sk0[i]*Skref;
+	        Skdiff = Skdiff*Skdiff/N-Sk0[i];
                 if(Sk0[i] != 0)
                 {
-                    Skdiff /= Sk0[i]*Skref;
+                    Skdiff /= Sk0[i];
                 }
              
                 Skdiff2 = Skdiff*Skdiff;
-                calculate_U(U, dU, Skdiff2, Kmag[i]);
-	        phi += V[i]*U*Skdiff2;
+	        phi += V[i]*Skdiff2;
 	    } 
             return phi;
         }
@@ -332,61 +266,32 @@ class NUwU: public BasePotential{
                 z = std::vector<double>(1);
 	        fz = std::vector<std::complex<double>>(1);
             }
-            double Skdiff, Skdiff2, U, dU, Skref, rhoref, Sk0ref, noise;
+            double Skdiff, Skdiff2;
             double phi = 0.0;
 	    std::complex<double> Ifactor(0.0,-4.0/N);
-	    grad.assign(grad.size(),0);
 	    int Nk = Kvec.size();
-            if (periodic == 0){
-                update_c(points);
-            }
+	    grad.assign(grad.size(),0);
             finufft_setpts(plan1, N, &x[0], &y[0], &z[0], 0, &x[0], &y[0], &z[0]);
             finufft_setpts(plan2, N, &x[0], &y[0], &z[0], 0, &x[0], &y[0], &z[0]);
             finufft_execute(plan1, &c[0], &rho[0]);
             
-	    if (pin_Sk > 0)
-            {
-                Skref = 0;
-                Sk0ref = 0;
-                #pragma omp parallel for
-                for (size_t i = 0; i < rho.size(); i++)
-                {
-                    if (Kmag[i]>K && Kmag[i]<K+10)
-                    {
-	                rhoref = std::real(std::abs(rho[i]));
-                        Skref += rhoref*rhoref/N;
-                        Sk0ref += Sk0[i];
-                    }
-                }
-                Skref /= Sk0ref;
-                //std::cout << Skref << '\n';
-            }
-            else
-                Skref = 1.0;
             for (size_t i = 0; i < rho.size(); i++)
 	    {
-                if (noisetype == 1)
-                    noise = normal_distribution(generator)*Kmag[i]/K;
-                else if (noisetype == 2)
-                    noise = uniform_distribution(generator);
-                else
-                    noise = 0;
 	        Skdiff = std::real(std::abs(rho[i]));
              
-	        Skdiff = Skdiff*Skdiff/N-(1+noise)*Sk0[i]*Skref;
+	        Skdiff = Skdiff*Skdiff/N-Sk0[i];
                 if(Sk0[i] != 0)
                 {
-                    Skdiff /= Sk0[i]*Skref;
+                    Skdiff /= Sk0[i];
                 }
              
                 Skdiff2 = Skdiff*Skdiff;
-                calculate_U(U, dU, Skdiff2, Kmag[i]);
-	        phi += V[i]*U*Skdiff2;
-	        factor[i] = (4.0/N)*V[i]*Skdiff*rho[i]*(U+Skdiff2*dU);
-	        //if(Sk0[i] != 0)
-                //{
-                //    factor[i] /= Sk0[i]*Skref;
-                //}
+	        phi += V[i]*Skdiff2;
+	        factor[i] = (4.0/N)*V[i]*Skdiff*rho[i];
+	        if(Sk0[i] != 0)
+                {
+                    factor[i] /= Sk0[i];
+                }
 	        fx[i] = std::complex<double>(Kvec[int(i%Nk)])*factor[i]*-I;
                 if (ndim==2)
                 {

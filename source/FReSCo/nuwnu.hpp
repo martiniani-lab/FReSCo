@@ -17,10 +17,10 @@ namespace fresco{
 class NUwNU: public BasePotential{
     //static const size_t ndim = 2;
     public:
-        const size_t ndim; //dimension
         const size_t N; // Number of particles
-        const size_t Nk; // Number of k vectors
         const std::vector<double> L; // box dimensions
+        const size_t ndim; //dimension
+        const size_t Nk; // Number of k vectors
         std::vector<double> kx; // K vectors to constrain
         std::vector<double> ky; // K vectors to constrain
         std::vector<double> kz; // K vectors to constrain
@@ -30,29 +30,19 @@ class NUwNU: public BasePotential{
         const std::vector<double> Sk0; // Structure Factor
         const std::vector<double> V; // Potential Weighting
         std::vector<std::complex<double>> c; // Point weights
-        const int error_mode; //Form of U(k) to be used
-        const int noisetype; // 0 for none, 1 for normal, 2 for uniform
-        std::mt19937_64 generator; // rng generator
-        std::normal_distribution<double> normal_distribution; // normal distribution
-        std::uniform_real_distribution<double> uniform_distribution; // normal distribution
         finufft_plan plan3;
         finufft_plan plan3g;
 
-        NUwNU(std::vector<double> radii, std::vector<double> _K, std::vector<double> _Sk, std::vector<double> _V, std::vector<double> _L, double _eps, int _error_mode, int _rseed, int _noisetype, double _stdev)
+        NUwNU(std::vector<double> radii, std::vector<double> _K, std::vector<double> _Sk, std::vector<double> _V, std::vector<double> _L, double _eps)
         : N(radii.size()),
           L(_L),
           ndim(_L.size()),
           Nk(size_t(_K.size()/ndim)),
+          kx(Nk),
+          eps(_eps),
           Sk0(_Sk),
           V(_V),
-          c(initialize_c(radii)),
-          eps(_eps),
-          error_mode(_error_mode),
-          noisetype(_noisetype),
-          generator(size_t(_rseed)),
-          normal_distribution(0.0, _stdev),
-          uniform_distribution(-_stdev,_stdev),
-          kx(Nk)
+          c(initialize_c(radii))
         {
 	    for (size_t j = 0; j < Nk; j++)
             {
@@ -169,7 +159,7 @@ class NUwNU: public BasePotential{
             {
                 z = std::vector<double>(1);
             }
-            double Skdiff, Skdiff2, noise;
+            double Skdiff, Skdiff2;
             double phi = 0.0;
             
             finufft_setpts(plan3, N, &x[0], &y[0], &z[0], Nk, &kx[0], &ky[0], &kz[0]);
@@ -177,15 +167,9 @@ class NUwNU: public BasePotential{
             
             for (size_t i = 0; i < rho.size(); i++)
 	    {
-                if (noisetype == 1)
-                    noise = normal_distribution(generator);
-                else if (noisetype == 2)
-                    noise = uniform_distribution(generator);
-                else
-                    noise = 0;
 	        Skdiff = std::real(std::abs(rho[i]));
              
-	        Skdiff = Skdiff*Skdiff/N-(1+noise)*Sk0[i];
+	        Skdiff = Skdiff*Skdiff/N-Sk0[i];
                 if(Sk0[i] != 0)
                 {
                     Skdiff /= Sk0[i];
@@ -238,7 +222,7 @@ class NUwNU: public BasePotential{
                 z = std::vector<double>(1);
 	        fz = std::vector<std::complex<double>>(1);
             }
-            double Skdiff, Skdiff2, noise;
+            double Skdiff, Skdiff2;
 	    std::complex<double> factor;
             double phi = 0.0;
 	    std::complex<double> Ifactor(0.0,-4.0/N);
@@ -250,15 +234,9 @@ class NUwNU: public BasePotential{
             
             for (size_t i = 0; i < rho.size(); i++)
 	    {
-                if (noisetype == 1)
-                    noise = normal_distribution(generator);
-                else if (noisetype == 2)
-                    noise = uniform_distribution(generator);
-                else
-                    noise = 0;
 	        Skdiff = std::real(std::abs(rho[i]));
              
-	        Skdiff = Skdiff*Skdiff/N-(1+noise)*Sk0[i];
+	        Skdiff = Skdiff*Skdiff/N-Sk0[i];
                 if(Sk0[i] != 0)
                 {
                     Skdiff /= Sk0[i];
