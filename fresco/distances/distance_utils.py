@@ -25,7 +25,7 @@ def get_rcut_scaled(radii, boxv):
     ncellsx_scale = 1 if ncellsx < ncellsx_max else ncellsx_max / ncellsx
     return boxv[0] / (ncellsx_scale * ncellsx)
 
-@jit(nopython=False)
+@jit(nopython=True)
 def count_contacts(coords, radii, boxv):
     ndim = len(boxv)
     z = np.zeros(coords.size // ndim)
