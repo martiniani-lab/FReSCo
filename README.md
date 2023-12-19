@@ -29,7 +29,7 @@ Then, either run
 
 to enter the container and run code directly from it, or run
 
-`./docker_build.sh my_command`
+`./docker_starter.sh my_command`
 
 to run commands in the container from the outside.
 By default, docker_build mounts the examples directory into the docker environment so that outputs are easily accessible from the outside.
