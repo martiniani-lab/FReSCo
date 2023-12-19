@@ -78,7 +78,7 @@ def generate_cython():
     print("Cythonizing sources")
     p = subprocess.call([sys.executable,
                          os.path.join(cwd, 'cythonize.py'),
-                         'FReSCo'] + cython_flags,
+                         'fresco'] + cython_flags,
                         cwd=cwd)
     if p != 0:
         raise RuntimeError("Running cythonize failed!")
@@ -148,43 +148,43 @@ else:
     cmake_compiler_extra_args += ['-axCORE-AVX2', '-ipo', '-qopenmp', '-ip', '-unroll',
                                   '-qopt-report']
     
-setup(name='FReSCo',
+setup(name='fresco',
       version='0.1',
       author='Stefano Martiniani, Aaron Shih, Mathias Casiulis',
       description="Fast Reciprocal Space Correlator for disordered media",
       install_requires=["numpy", "cython"],
-      packages=["FReSCo"],
+      packages=["fresco"],
       )
 
 #
 cmake_build_dir = os.getcwd()+"/"+"build/cmake"
 
 
-cxx_files = ["FReSCo/distances/_get_distance_cpp.cxx",
-        "FReSCo/distances/_put_in_box_cpp.cxx",
-        "FReSCo/distances/_check_overlap.cxx",
-        "FReSCo/potentials/inversepower_potential.cxx",
-        "FReSCo/potentials/wca_potential.cxx",
-        "FReSCo/potentials/_fresco.cxx",
-        "FReSCo/potentials/combine_potentials.cxx",
-        "FReSCo/potentials/_pythonpotential.cxx",
-        "FReSCo/optimize/opt.cxx",
-        "FReSCo/optimize/_lbfgs_cpp.cxx",
-        "FReSCo/optimize/_modified_fire_cpp.cxx",
-        "FReSCo/utils/c_utils.cxx",
+cxx_files = ["fresco/distances/_get_distance_cpp.cxx",
+        "fresco/distances/_put_in_box_cpp.cxx",
+        "fresco/distances/_check_overlap.cxx",
+        "fresco/potentials/inversepower_potential.cxx",
+        "fresco/potentials/wca_potential.cxx",
+        "fresco/potentials/_fresco.cxx",
+        "fresco/potentials/combine_potentials.cxx",
+        "fresco/potentials/_pythonpotential.cxx",
+        "fresco/optimize/opt.cxx",
+        "fresco/optimize/_lbfgs_cpp.cxx",
+        "fresco/optimize/_modified_fire_cpp.cxx",
+        "fresco/utils/c_utils.cxx",
              ]
 # Enter your finufft directory here
-finufft_dir = '/home/ahshih/Desktop/finufft/'
+finufft_dir = os.getcwd()+'/finufft/'
 if not os.path.isdir(finufft_dir):
     raise RuntimeError("Invalid finufft path! Please enter a valid path for finufft_dir in setup.py")
     
 
 
 if len(finufft_dir)>0:
-    cxx_files.append("FReSCo/potentials/uwu.cxx")
-    cxx_files.append("FReSCo/potentials/nuwu.cxx")
-    cxx_files.append("FReSCo/potentials/uwnu.cxx")
-    cxx_files.append("FReSCo/potentials/nuwnu.cxx")
+    cxx_files.append("fresco/potentials/uwu.cxx")
+    cxx_files.append("fresco/potentials/nuwu.cxx")
+    cxx_files.append("fresco/potentials/uwnu.cxx")
+    cxx_files.append("fresco/potentials/nuwnu.cxx")
 
 def get_ldflags(opt="--ldflags"):
     """return the ldflags.  This was taken directly from python-config"""

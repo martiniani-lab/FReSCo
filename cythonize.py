@@ -5,7 +5,7 @@ Cythonize pyx files into C files as needed.
 
 Usage: cythonize [root_dir]
 
-Default [root_dir] is 'FReSCo'.
+Default [root_dir] is 'fresco'.
 
 Checks pyx files to see if they have been changed relative to their
 corresponding C files.  If they have, then runs cython on these files to
@@ -41,7 +41,7 @@ import subprocess
 from multiprocessing.dummy import Pool, Lock
 
 HASH_FILE = 'cythonize.dat'
-DEFAULT_ROOT = 'FReSCo'
+DEFAULT_ROOT = 'fresco'
 
 # WindowsError is not defined on unix systems
 try:

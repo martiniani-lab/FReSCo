@@ -1,4 +1,4 @@
-#include "FReSCo/modified_fire.hpp"
+#include "fresco/modified_fire.hpp"
 #include <vector>
 
 using std::vector;

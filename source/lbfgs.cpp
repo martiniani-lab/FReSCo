@@ -1,4 +1,4 @@
-#include "FReSCo/lbfgs.hpp"
+#include "fresco/lbfgs.hpp"
 #include <memory>
 #include <math.h>
 #include <iostream>

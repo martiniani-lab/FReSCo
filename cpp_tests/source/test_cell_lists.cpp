@@ -1,7 +1,7 @@
 #include "FResCo/vecN.hpp"
-#include "FReSCo/cell_lists.hpp"
-#include "FReSCo/distance.hpp"
-#include "FReSCo/inversepower_potential.hpp"
+#include "fresco/cell_lists.hpp"
+#include "fresco/distance.hpp"
+#include "fresco/inversepower_potential.hpp"
 #include "test_utils.hpp"
 
 #include <iostream>

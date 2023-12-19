@@ -2,7 +2,7 @@
 #include <stdexcept>
 #include <gtest/gtest.h>
 
-#include "FReSCo/inversepower_potential.hpp"
+#include "fresco/inversepower_potential.hpp"
 
 using fresco::InversePowerPeriodic;
 using fresco::InversePowerCartesian;

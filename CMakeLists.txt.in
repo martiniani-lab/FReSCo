@@ -11,6 +11,7 @@ set(numpy_include __NUMPY_INCLUDE__)
 set(PYTHON_INCLUDE_DIRS __PYTHON_INCLUDE__)
 __FINUFFT_INCLUDE__
 set(PYTHON_LDFLAGS "__PYTHON_LDFLAGS__")
+find_library(FFTW3_LIB fftw3)
 
 message("python include dirs: ${PYTHON_INCLUDE_DIRS}")
 message("C include dirs: ${C_INCLUDE_DIRS}")
@@ -26,10 +27,10 @@ SET(CMAKE_CXX_FLAGS __COMPILER_EXTRA_ARGS__)
 
 #cmake_policy(SET CMP0015 NEW)
 
-# set the FReSCo include directory
+# set the fresco include directory
 set(fresco_include ${CMAKE_SOURCE_DIR}/source)
 include_directories(${fresco_include})
-message("FReSCo include directory: ${fresco_include}")
+message("fresco include directory: ${fresco_include}")
 
 
 # build the pele library
@@ -39,7 +40,7 @@ FILE(GLOB fresco_sources ${fresco_include}/*.c*)
 
 add_library(fresco_lib SHARED ${fresco_sources})
 
-# build the FReSCo library
+# build the fresco library
 
 function(make_cython_lib cython_cxx_source)
   get_filename_component(library_name ${cython_cxx_source} NAME)
@@ -47,6 +48,7 @@ function(make_cython_lib cython_cxx_source)
   add_library(${library_name} SHARED ${cython_cxx_source})
   target_link_libraries(${library_name} PUBLIC fresco_lib) 
   __FINUFFT_LIBRARY__
+  target_link_libraries(${library_name} ${FFTW3_LIB})#/usr/lib/x86_64-linux-gnu/libfftw3_omp.so) 
   set_target_properties(${library_name} PROPERTIES PREFIX "")
   message("making library ${library_name} from source ${cython_cxx_source}")
 endfunction(make_cython_lib)

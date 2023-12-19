@@ -5,8 +5,8 @@
 
 #include <gtest/gtest.h>
 
-#include "FReSCo/check_overlap.hpp"
-#include "FReSCo/check_overlap_cell_lists.hpp"
+#include "fresco/check_overlap.hpp"
+#include "fresco/check_overlap_cell_lists.hpp"
 #include "test_utils.hpp"
 
 #if __APPLE__

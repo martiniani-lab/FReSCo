@@ -4,7 +4,7 @@
 
 #include <gtest/gtest.h>
 
-#include "FReSCo/distance.hpp"
+#include "fresco/distance.hpp"
 #include "test_utils.hpp"
 
 using fresco::periodic_distance;

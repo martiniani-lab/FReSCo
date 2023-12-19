@@ -1,4 +1,4 @@
-#include "FReSCo/base_potential.hpp"
+#include "fresco/base_potential.hpp"
 
 #include <iostream>
 #include <stdexcept>
