@@ -53,7 +53,7 @@ def _get_lattice_index(lattice_coordinates, lattice_boxv):
         raise NotImplementedError
 
 
-@jit
+@jit(nopython=False)
 def convert_to_lattice_pbc(coords_, boxv, lattice_boxv):
     coords = np.array(coords_)
     ndim = len(boxv)
@@ -70,7 +70,7 @@ def convert_to_lattice_pbc(coords_, boxv, lattice_boxv):
     return lattice
 
 
-@jit
+@jit(nopython=False)
 def convert_to_lattice_cartesian(coords_, boxv, lattice_boxv, xmin=None):
     coords = np.array(coords_, dtype='d')
     ndim = len(boxv)
@@ -87,7 +87,7 @@ def convert_to_lattice_cartesian(coords_, boxv, lattice_boxv, xmin=None):
     return lattice
 
 
-@jit
+@jit(nopython=False)
 def _get_lattice_bin_centers(boxv, lattice_boxv):
     # https://stackoverflow.com/questions/4709510/itertools-product-speed-up
     ndim = len(lattice_boxv)

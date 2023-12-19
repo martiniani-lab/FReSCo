@@ -1,5 +1,5 @@
-#ifndef __HYPERALG_TEST_UTILS_HPP__
-#define __HYPERALG_TEST_UTILS_HPP__
+#ifndef __FRESCO_TEST_UTILS_HPP__
+#define __FRESCO_TEST_UTILS_HPP__
 
 #include <iostream>
 #include <stdexcept>
