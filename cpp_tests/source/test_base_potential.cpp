@@ -1,4 +1,4 @@
-#include "hyperalg/base_potential.hpp"
+#include "FReSCo/base_potential.hpp"
 
 #include <iostream>
 #include <stdexcept>
@@ -6,9 +6,9 @@
 #include <gtest/gtest.h>
 #include <cmath>
 
-using ha::BasePotential;
+using fresco::BasePotential;
 
-class HarmonicE : public ha::BasePotential
+class HarmonicE : public fresco::BasePotential
 {
 public:
     size_t call_count;

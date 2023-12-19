@@ -4,11 +4,11 @@
 
 #include <gtest/gtest.h>
 
-#include "hyperalg/distance.hpp"
+#include "FReSCo/distance.hpp"
 #include "test_utils.hpp"
 
-using ha::periodic_distance;
-using ha::cartesian_distance;
+using fresco::periodic_distance;
+using fresco::cartesian_distance;
 
 static double const EPS = std::numeric_limits<double>::min();
 #define EXPECT_NEAR_RELATIVE(A, B, T)  ASSERT_NEAR(A/(fabs(A)+fabs(B) + EPS), B/(fabs(A)+fabs(B) + EPS), T)
@@ -111,7 +111,7 @@ TEST_F(DistanceTest, CartesianPairDistance2_Works)
             x2all[2*i_repeat+j] = x2[i_repeat][j];
         }
     }
-    std::vector<double> paird = ha::cartesian_distance<2>().get_pair_distances(x2all);
+    std::vector<double> paird = fresco::cartesian_distance<2>().get_pair_distances(x2all);
 
     size_t idx = 0;
     double dr[2];
@@ -137,7 +137,7 @@ TEST_F(DistanceTest, CartesianPairDistance3_Works)
             x3all[3*i_repeat+j] = x3[i_repeat][j];
         }
     }
-    std::vector<double> paird = ha::cartesian_distance<3>().get_pair_distances(x3all);
+    std::vector<double> paird = fresco::cartesian_distance<3>().get_pair_distances(x3all);
 
     size_t idx = 0;
     double dr[3];
@@ -163,7 +163,7 @@ TEST_F(DistanceTest, CartesianPairDistance42_Works)
             x42all[42*i_repeat+j] = x42[i_repeat][j];
         }
     }
-    std::vector<double> paird = ha::cartesian_distance<42>().get_pair_distances(x42all);
+    std::vector<double> paird = fresco::cartesian_distance<42>().get_pair_distances(x42all);
 
     size_t idx = 0;
     double dr[42];
@@ -305,7 +305,7 @@ TEST_F(DistanceTest, PeriodicPairDistance2_Works)
             x2all[2*i_repeat+j] = x2[i_repeat][j];
         }
     }
-    std::vector<double> paird = ha::periodic_distance<2>(std::vector<double>(2, L)).get_pair_distances(x2all);
+    std::vector<double> paird = fresco::periodic_distance<2>(std::vector<double>(2, L)).get_pair_distances(x2all);
 
     size_t idx = 0;
     double dr[2];
@@ -332,7 +332,7 @@ TEST_F(DistanceTest, PeriodicPairDistance3_Works)
             x3all[3*i_repeat+j] = x3[i_repeat][j];
         }
     }
-    std::vector<double> paird = ha::periodic_distance<3>(std::vector<double>(3, L)).get_pair_distances(x3all);
+    std::vector<double> paird = fresco::periodic_distance<3>(std::vector<double>(3, L)).get_pair_distances(x3all);
 
     size_t idx = 0;
     double dr[3];
@@ -359,7 +359,7 @@ TEST_F(DistanceTest, PeriodicPairDistance42_Works)
             x42all[42*i_repeat+j] = x42[i_repeat][j];
         }
     }
-    std::vector<double> paird = ha::periodic_distance<42>(std::vector<double>(42, L)).get_pair_distances(x42all);
+    std::vector<double> paird = fresco::periodic_distance<42>(std::vector<double>(42, L)).get_pair_distances(x42all);
 
     size_t idx = 0;
     double dr[42];

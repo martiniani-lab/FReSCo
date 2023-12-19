@@ -5,8 +5,8 @@
 
 #include <gtest/gtest.h>
 
-#include "hyperalg/check_overlap.hpp"
-#include "hyperalg/check_overlap_cell_lists.hpp"
+#include "FReSCo/check_overlap.hpp"
+#include "FReSCo/check_overlap_cell_lists.hpp"
 #include "test_utils.hpp"
 
 #if __APPLE__
@@ -15,8 +15,8 @@
 #include <omp.h>
 #endif
 
-using ha::periodic_distance;
-using ha::cartesian_distance;
+using fresco::periodic_distance;
+using fresco::cartesian_distance;
 
 static double const EPS = std::numeric_limits<double>::min();
 #define EXPECT_NEAR_RELATIVE(A, B, T)  ASSERT_NEAR(A/(fabs(A)+fabs(B) + EPS), B/(fabs(A)+fabs(B) + EPS), T)
@@ -49,8 +49,8 @@ public:
 
 TEST_F(CheckOverlapTest2d, CheckOverlapCartesian_Works)
 {
-    ha::CheckOverlapCartesian<2> check_overlap(radii);
-    ha::CheckOverlapCartesianCellLists<2> check_overlap_cell_lists(radii, boxv);
+    fresco::CheckOverlapCartesian<2> check_overlap(radii);
+    fresco::CheckOverlapCartesianCellLists<2> check_overlap_cell_lists(radii, boxv);
     auto overlap_uset = check_overlap.get_overlapping_particles_uset(x);
     auto overlap_uset_cell = check_overlap_cell_lists.get_overlapping_particles_uset(x);
     bool test = overlap_uset == overlap_uset_cell;
@@ -59,8 +59,8 @@ TEST_F(CheckOverlapTest2d, CheckOverlapCartesian_Works)
 
 TEST_F(CheckOverlapTest2d, CheckOverlapPeriodic_Works)
 {
-    ha::CheckOverlapPeriodic<2> check_overlap(radii, boxv);
-    ha::CheckOverlapPeriodicCellLists<2> check_overlap_cell_lists(radii, boxv);
+    fresco::CheckOverlapPeriodic<2> check_overlap(radii, boxv);
+    fresco::CheckOverlapPeriodicCellLists<2> check_overlap_cell_lists(radii, boxv);
     auto overlap_uset = check_overlap.get_overlapping_particles_uset(x);
     auto overlap_uset_cell = check_overlap_cell_lists.get_overlapping_particles_uset(x);
     bool test = overlap_uset == overlap_uset_cell;
@@ -90,8 +90,8 @@ public:
 
 TEST_F(CheckOverlapTest3d, CheckOverlapCartesian_Works)
 {
-    ha::CheckOverlapCartesian<3> check_overlap(radii);
-    ha::CheckOverlapCartesianCellLists<3> check_overlap_cell_lists(radii, boxv);
+    fresco::CheckOverlapCartesian<3> check_overlap(radii);
+    fresco::CheckOverlapCartesianCellLists<3> check_overlap_cell_lists(radii, boxv);
     auto overlap_uset = check_overlap.get_overlapping_particles_uset(x);
     auto overlap_uset_cell = check_overlap_cell_lists.get_overlapping_particles_uset(x);
     bool test = overlap_uset == overlap_uset_cell;
@@ -100,8 +100,8 @@ TEST_F(CheckOverlapTest3d, CheckOverlapCartesian_Works)
 
 TEST_F(CheckOverlapTest3d, CheckOverlapPeriodic_Works)
 {
-    ha::CheckOverlapPeriodic<3> check_overlap(radii, boxv);
-    ha::CheckOverlapPeriodicCellLists<3> check_overlap_cell_lists(radii, boxv);
+    fresco::CheckOverlapPeriodic<3> check_overlap(radii, boxv);
+    fresco::CheckOverlapPeriodicCellLists<3> check_overlap_cell_lists(radii, boxv);
     auto overlap_uset = check_overlap.get_overlapping_particles_uset(x);
     auto overlap_uset_cell = check_overlap_cell_lists.get_overlapping_particles_uset(x);
     bool test = overlap_uset == overlap_uset_cell;

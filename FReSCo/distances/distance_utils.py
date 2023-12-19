@@ -1,6 +1,6 @@
 import numpy as np
-from hyperalg.distances import Distance, get_distance
-from hyperalg.utils import omp_get_thread_count
+from FReSCo.distances import Distance, get_distance
+from FReSCo.utils import omp_get_thread_count
 from numba import jit
 
 def get_ncellsx_scale(radii, boxv, omp_threads=None):

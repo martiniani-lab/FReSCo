@@ -7,7 +7,6 @@ import cmath
 import daiquiri, logging
 import inspect
 import dill as pickle
-import hickle as hkl
 import pickletools
 import gzip
 import contextlib
@@ -404,12 +403,6 @@ def pickle_load(fname):
     except:
         return old_pickle_load(fname)
 
-def hickle_dump(data, fname, compression='gzip', shuffle=True, fletcher32=True):
-    hkl.dump(data, fname, mode='w', compression=compression, shuffle=shuffle, fletcher32=fletcher32)
-
-def hickle_load(fname):
-    data = hkl.load(fname)
-    return data
 
 @contextlib.contextmanager
 def silence():

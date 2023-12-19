@@ -1,7 +1,7 @@
-#include "hyperalg/vecN.hpp"
-#include "hyperalg/cell_lists.hpp"
-#include "hyperalg/distance.hpp"
-#include "hyperalg/inversepower_potential.hpp"
+#include "FResCo/vecN.hpp"
+#include "FReSCo/cell_lists.hpp"
+#include "FReSCo/distance.hpp"
+#include "FReSCo/inversepower_potential.hpp"
 #include "test_utils.hpp"
 
 #include <iostream>
@@ -92,7 +92,7 @@ public:
  };
 
 template<typename distance_policy>
-size_t get_nr_unique_pairs(std::vector<double> coords, ha::CellLists<distance_policy> & cl)
+size_t get_nr_unique_pairs(std::vector<double> coords, fresco::CellLists<distance_policy> & cl)
 {
     stupid_counter<distance_policy::_ndim> counter;
     cl.update(coords);
@@ -170,10 +170,10 @@ public:
 
 //test number of distinguishable pairs
 TEST_F(CellListsTest, Number_of_neighbors){
-    ha::CellLists<> cell(std::make_shared<ha::periodic_distance<3> >(boxvec), boxvec, boxvec[0]);
-    ha::CellLists<> cell2(std::make_shared<ha::periodic_distance<3> >(boxvec), boxvec, boxvec[0], 1);
-    ha::CellLists<> cell3(std::make_shared<ha::periodic_distance<3> >(boxvec), boxvec, boxvec[0], 4.2);
-    ha::CellLists<> cell4(std::make_shared<ha::periodic_distance<3> >(boxvec), boxvec, boxvec[0], 5);
+    fresco::CellLists<> cell(std::make_shared<fresco::periodic_distance<3> >(boxvec), boxvec, boxvec[0]);
+    fresco::CellLists<> cell2(std::make_shared<fresco::periodic_distance<3> >(boxvec), boxvec, boxvec[0], 1);
+    fresco::CellLists<> cell3(std::make_shared<fresco::periodic_distance<3> >(boxvec), boxvec, boxvec[0], 4.2);
+    fresco::CellLists<> cell4(std::make_shared<fresco::periodic_distance<3> >(boxvec), boxvec, boxvec[0], 5);
     size_t count = 3u;
     ASSERT_EQ(count, get_nr_unique_pairs(x, cell));
     ASSERT_EQ(count, get_nr_unique_pairs(x, cell2));
@@ -182,10 +182,10 @@ TEST_F(CellListsTest, Number_of_neighbors){
 }
 
 TEST_F(CellListsTest, Number_of_neighbors_Cartesian){
-    ha::CellLists<ha::cartesian_distance<3> > cell(std::make_shared<ha::cartesian_distance<3> >(), boxvec, boxvec[0]);
-    ha::CellLists<ha::cartesian_distance<3> > cell2(std::make_shared<ha::cartesian_distance<3> >(), boxvec, boxvec[0], 1);
-    ha::CellLists<ha::cartesian_distance<3> > cell3(std::make_shared<ha::cartesian_distance<3> >(), boxvec, boxvec[0], 4.2);
-    ha::CellLists<ha::cartesian_distance<3> > cell4(std::make_shared<ha::cartesian_distance<3> >(), boxvec, boxvec[0], 5);
+    fresco::CellLists<fresco::cartesian_distance<3> > cell(std::make_shared<fresco::cartesian_distance<3> >(), boxvec, boxvec[0]);
+    fresco::CellLists<fresco::cartesian_distance<3> > cell2(std::make_shared<fresco::cartesian_distance<3> >(), boxvec, boxvec[0], 1);
+    fresco::CellLists<fresco::cartesian_distance<3> > cell3(std::make_shared<fresco::cartesian_distance<3> >(), boxvec, boxvec[0], 4.2);
+    fresco::CellLists<fresco::cartesian_distance<3> > cell4(std::make_shared<fresco::cartesian_distance<3> >(), boxvec, boxvec[0], 5);
     size_t count = 3u;
     ASSERT_EQ(count, get_nr_unique_pairs(x, cell));
     ASSERT_EQ(count, get_nr_unique_pairs(x, cell2));
@@ -194,11 +194,11 @@ TEST_F(CellListsTest, Number_of_neighbors_Cartesian){
 }
 
 TEST_F(CellListsTest, NumberNeighborsDifferentRcut_Works){
-    auto dist = std::make_shared<ha::periodic_distance<3> >(boxvec);
-    ha::CellLists<> cell(dist, boxvec, boxvec[0]);
-    ha::CellLists<> cell2(dist, boxvec, boxvec[0], 1);
-    ha::CellLists<> cell3(dist, boxvec, boxvec[0], 4.2);
-    ha::CellLists<> cell4(dist, boxvec, boxvec[0], 5);
+    auto dist = std::make_shared<fresco::periodic_distance<3> >(boxvec);
+    fresco::CellLists<> cell(dist, boxvec, boxvec[0]);
+    fresco::CellLists<> cell2(dist, boxvec, boxvec[0], 1);
+    fresco::CellLists<> cell3(dist, boxvec, boxvec[0], 4.2);
+    fresco::CellLists<> cell4(dist, boxvec, boxvec[0], 5);
     size_t count_ref = get_direct_nr_unique_pairs(dist, boxvec[0], x);
     size_t count = get_nr_unique_pairs(x, cell);
     size_t count2 = get_nr_unique_pairs(x, cell2);
@@ -213,11 +213,11 @@ TEST_F(CellListsTest, NumberNeighborsDifferentRcut_Works){
 
 // TEST_F(CellListsTest, NumberNeighborsDifferentRcut_WorksLeesEdwards){
 //     for(double shear = 0.0; shear <= 1.0; shear += 0.01) {
-//         auto dist = std::make_shared<ha::leesedwards_distance<3> >(boxvec, shear);
-//         ha::CellLists<ha::leesedwards_distance<3>> cell(dist, boxvec, boxvec[0]);
-//         ha::CellLists<ha::leesedwards_distance<3>> cell2(dist, boxvec, boxvec[0], 1);
-//         ha::CellLists<ha::leesedwards_distance<3>> cell3(dist, boxvec, boxvec[0], 4.2);
-//         ha::CellLists<ha::leesedwards_distance<3>> cell4(dist, boxvec, boxvec[0], 5);
+//         auto dist = std::make_shared<fresco::leesedwards_distance<3> >(boxvec, shear);
+//         fresco::CellLists<fresco::leesedwards_distance<3>> cell(dist, boxvec, boxvec[0]);
+//         fresco::CellLists<fresco::leesedwards_distance<3>> cell2(dist, boxvec, boxvec[0], 1);
+//         fresco::CellLists<fresco::leesedwards_distance<3>> cell3(dist, boxvec, boxvec[0], 4.2);
+//         fresco::CellLists<fresco::leesedwards_distance<3>> cell4(dist, boxvec, boxvec[0], 5);
 //         size_t count_ref = get_direct_nr_unique_pairs(dist, boxvec[0], x);
 //         size_t count = get_nr_unique_pairs(x, cell);
 //         size_t count2 = get_nr_unique_pairs(x, cell2);
@@ -232,11 +232,11 @@ TEST_F(CellListsTest, NumberNeighborsDifferentRcut_Works){
 // }
 
 TEST_F(CellListsTest, NumberNeighborsDifferentRcut_WorksCartesian){
-    auto dist = std::make_shared<ha::cartesian_distance<3> >();
-    ha::CellLists<ha::cartesian_distance<3> > cell(dist, boxvec, boxvec[0]);
-    ha::CellLists<ha::cartesian_distance<3> > cell2(dist, boxvec, boxvec[0], 1);
-    ha::CellLists<ha::cartesian_distance<3> > cell3(dist, boxvec, boxvec[0], 4.2);
-    ha::CellLists<ha::cartesian_distance<3> > cell4(dist, boxvec, boxvec[0], 5);
+    auto dist = std::make_shared<fresco::cartesian_distance<3> >();
+    fresco::CellLists<fresco::cartesian_distance<3> > cell(dist, boxvec, boxvec[0]);
+    fresco::CellLists<fresco::cartesian_distance<3> > cell2(dist, boxvec, boxvec[0], 1);
+    fresco::CellLists<fresco::cartesian_distance<3> > cell3(dist, boxvec, boxvec[0], 4.2);
+    fresco::CellLists<fresco::cartesian_distance<3> > cell4(dist, boxvec, boxvec[0], 5);
     size_t count = get_direct_nr_unique_pairs(dist, boxvec[0], x);
     size_t count2 = get_nr_unique_pairs(x, cell2);
     size_t count3 = get_nr_unique_pairs(x, cell3);
@@ -248,21 +248,21 @@ TEST_F(CellListsTest, NumberNeighborsDifferentRcut_WorksCartesian){
 }
 
 TEST_F(CellListsTest, getEnergy_nan){
-    ha::InversePowerPeriodicCellLists<3> pot_cell(pow, eps, radii, boxvec, 1.0);
+    fresco::InversePowerPeriodicCellLists<3> pot_cell(pow, eps, radii, boxvec, 1.0);
     std::fill(x.begin(), x.end(), NAN);
     const double e = pot_cell.get_energy(x);
     ASSERT_TRUE(isnan(e));
 }
 
 TEST_F(CellListsTest, getEnergy_inf){
-    ha::InversePowerPeriodicCellLists<3> pot_cell(pow, eps, radii, boxvec, 1.0);
+    fresco::InversePowerPeriodicCellLists<3> pot_cell(pow, eps, radii, boxvec, 1.0);
     std::fill(x.begin(), x.end(), INFINITY);
     const double e = pot_cell.get_energy(x);
     ASSERT_TRUE(isnan(e));
 }
 
 TEST_F(CellListsTest, getEnergyGradient_nan){
-    ha::InversePowerPeriodicCellLists<3> pot_cell(pow, eps, radii, boxvec, 1.0);
+    fresco::InversePowerPeriodicCellLists<3> pot_cell(pow, eps, radii, boxvec, 1.0);
     std::fill(x.begin(), x.end(), NAN);
     std::vector<double> g(x.size());
     std::fill(g.begin(), g.end(), NAN);
@@ -274,7 +274,7 @@ TEST_F(CellListsTest, getEnergyGradient_nan){
 }
 
 TEST_F(CellListsTest, getEnergyGradient_inf){
-    ha::InversePowerPeriodicCellLists<3> pot_cell(pow, eps, radii, boxvec, 1.0);
+    fresco::InversePowerPeriodicCellLists<3> pot_cell(pow, eps, radii, boxvec, 1.0);
     std::fill(x.begin(), x.end(), INFINITY);
     std::vector<double> g(x.size());
     std::fill(g.begin(), g.end(), INFINITY);
@@ -286,7 +286,7 @@ TEST_F(CellListsTest, getEnergyGradient_inf){
 }
 
 TEST_F(CellListsTest, getEnergyGradientHessian_nan){
-    ha::InversePowerPeriodicCellLists<3> pot_cell(pow, eps, radii, boxvec, 1.0);
+    fresco::InversePowerPeriodicCellLists<3> pot_cell(pow, eps, radii, boxvec, 1.0);
     std::fill(x.begin(), x.end(), NAN);
     std::vector<double> g(x.size());
     std::fill(g.begin(), g.end(), NAN);
@@ -303,7 +303,7 @@ TEST_F(CellListsTest, getEnergyGradientHessian_nan){
 }
 
 TEST_F(CellListsTest, getEnergyGradientHessian_inf){
-    ha::InversePowerPeriodicCellLists<3> pot_cell(pow, eps, radii, boxvec, 1.0);
+    fresco::InversePowerPeriodicCellLists<3> pot_cell(pow, eps, radii, boxvec, 1.0);
     std::fill(x.begin(), x.end(), INFINITY);
     std::vector<double> g(x.size());
     std::fill(g.begin(), g.end(), INFINITY);
@@ -320,11 +320,11 @@ TEST_F(CellListsTest, getEnergyGradientHessian_inf){
 }
 
 TEST_F(CellListsTest, Energy_Works){
-    ha::InversePowerPeriodicCellLists<3> pot_cell(pow, eps, radii, boxvec, 1.0);
-    ha::InversePowerPeriodicCellLists<3> pot_cell2(pow, eps, radii, boxvec, 2.0);
-    ha::InversePowerPeriodicCellLists<3> pot_cell3(pow, eps, radii, boxvec, 3.0);
-    ha::InversePowerPeriodicCellLists<3> pot_cell4(pow, eps, radii, boxvec, 4.0);
-    ha::InversePowerPeriodic<3> pot(pow, eps, radii, boxvec);
+    fresco::InversePowerPeriodicCellLists<3> pot_cell(pow, eps, radii, boxvec, 1.0);
+    fresco::InversePowerPeriodicCellLists<3> pot_cell2(pow, eps, radii, boxvec, 2.0);
+    fresco::InversePowerPeriodicCellLists<3> pot_cell3(pow, eps, radii, boxvec, 3.0);
+    fresco::InversePowerPeriodicCellLists<3> pot_cell4(pow, eps, radii, boxvec, 4.0);
+    fresco::InversePowerPeriodic<3> pot(pow, eps, radii, boxvec);
     const double ecell = pot_cell.get_energy(x);
     const double ecell2 = pot_cell2.get_energy(x);
     const double ecell3 = pot_cell3.get_energy(x);
@@ -337,8 +337,8 @@ TEST_F(CellListsTest, Energy_Works){
 }
 
 TEST_F(CellListsTest, ChangeCoords_Works){
-    ha::InversePowerPeriodicCellLists<3> pot_cell(pow, eps, radii, boxvec, .1);
-    ha::InversePowerPeriodic<3> pot(pow, eps, radii, boxvec);
+    fresco::InversePowerPeriodicCellLists<3> pot_cell(pow, eps, radii, boxvec, .1);
+    fresco::InversePowerPeriodic<3> pot(pow, eps, radii, boxvec);
     double ecell = pot_cell.get_energy(x);
     double etrue = pot.get_energy(x);
     ASSERT_NEAR(ecell, etrue, 1e-10);
@@ -359,12 +359,12 @@ TEST_F(CellListsTest, ChangeCoords_Works){
 }
 
 TEST_F(CellListsTest, EnergyGradient_AgreesWithNumerical){
-    ha::InversePowerPeriodic<3> pot_no_cells(pow, eps, radii, boxvec);
+    fresco::InversePowerPeriodic<3> pot_no_cells(pow, eps, radii, boxvec);
     const double etrue = pot_no_cells.get_energy(x);
     const size_t N = 3;
-    std::vector<std::shared_ptr<ha::InversePowerPeriodicCellLists<3> > > pot;
+    std::vector<std::shared_ptr<fresco::InversePowerPeriodicCellLists<3> > > pot;
     for (size_t i = 0; i < N; ++i) {
-        pot.push_back(std::make_shared<ha::InversePowerPeriodicCellLists<3> >(
+        pot.push_back(std::make_shared<fresco::InversePowerPeriodicCellLists<3> >(
                 pow, eps, radii, boxvec, 1 + i));
     }
     pot.swap(pot);
@@ -385,13 +385,13 @@ TEST_F(CellListsTest, EnergyGradient_AgreesWithNumerical){
 }
 
 TEST_F(CellListsTest, EnergyGradientHessian_AgreesWithNumerical){
-    ha::InversePowerPeriodic<3> pot_no_cells(pow, eps, radii, boxvec);
+    fresco::InversePowerPeriodic<3> pot_no_cells(pow, eps, radii, boxvec);
     const double etrue = pot_no_cells.get_energy(x);
     std::vector<double> g_no_cells(x.size()) ;
     std::vector<double> h_no_cells(x.size() * x.size());
     pot_no_cells.get_energy_gradient_hessian(x, g_no_cells, h_no_cells);
     for (size_t i = 0; i < 3; ++i) {
-        ha::InversePowerPeriodicCellLists<3> pot(pow, eps, radii, boxvec, 1.0 + i);
+        fresco::InversePowerPeriodicCellLists<3> pot(pow, eps, radii, boxvec, 1.0 + i);
         std::vector<double> h(x.size() * x.size());
         std::vector<double> hnum(h.size());
         const double e = pot.get_energy_gradient_hessian(x, g, h);
@@ -442,17 +442,17 @@ public:
 };
 
 TEST_F(CellListsTestHomogeneous3D, GridAndSpacing_Works) {
-    ha::CellLists<> cell_one(std::make_shared<ha::periodic_distance<3> >(boxvec), boxvec, boxvec[0]);
+    fresco::CellLists<> cell_one(std::make_shared<fresco::periodic_distance<3> >(boxvec), boxvec, boxvec[0]);
     cell_one.update(x);
     EXPECT_EQ(cell_one.get_nr_cells(), 1u);
     EXPECT_EQ(cell_one.get_nr_cellsx(), 1u);
     //std::cout << "nr_unique_pairs: one:\n" << get_nr_unique_pairs(x, cell_one) << "\n";
-    ha::CellLists<> cell_two(std::make_shared<ha::periodic_distance<3> >(boxvec), boxvec, boxvec[0] / 2);
+    fresco::CellLists<> cell_two(std::make_shared<fresco::periodic_distance<3> >(boxvec), boxvec, boxvec[0] / 2);
     cell_two.update(x);
     EXPECT_EQ(cell_two.get_nr_cells(), 8u);
     EXPECT_EQ(cell_two.get_nr_cellsx(), 2u);
     //std::cout << "nr_unique_pairs: two:\n" << get_nr_unique_pairs(x, cell_two) << "\n";
-    ha::CellLists<> cell_three(std::make_shared<ha::periodic_distance<3> >(boxvec), boxvec, boxvec[0] / 3);
+    fresco::CellLists<> cell_three(std::make_shared<fresco::periodic_distance<3> >(boxvec), boxvec, boxvec[0] / 3);
     cell_three.update(x);
     EXPECT_EQ(cell_three.get_nr_cells(), 27u);
     EXPECT_EQ(cell_three.get_nr_cellsx(), 3u);
@@ -460,20 +460,20 @@ TEST_F(CellListsTestHomogeneous3D, GridAndSpacing_Works) {
 
 // TEST_F(CellListsTestHomogeneous3D, GridAndSpacingLeesEdwards_Works) {
 //     for(double shear = 0.0; shear <= 1.0; shear += 0.01) {
-//         ha::CellLists<ha::leesedwards_distance<3> > cell_one(
-//             std::make_shared<ha::leesedwards_distance<3> >(boxvec, shear), boxvec, boxvec[0]);
+//         fresco::CellLists<fresco::leesedwards_distance<3> > cell_one(
+//             std::make_shared<fresco::leesedwards_distance<3> >(boxvec, shear), boxvec, boxvec[0]);
 //         cell_one.update(x);
 //         EXPECT_EQ(cell_one.get_nr_cells(), 1u);
 //         EXPECT_EQ(cell_one.get_nr_cellsx(), 1u);
 //         //std::cout << "nr_unique_pairs: one:\n" << get_nr_unique_pairs(x, cell_one) << "\n";
-//         ha::CellLists<ha::leesedwards_distance<3> > cell_two(
-//             std::make_shared<ha::leesedwards_distance<3> >(boxvec, shear), boxvec, boxvec[0] / 2);
+//         fresco::CellLists<fresco::leesedwards_distance<3> > cell_two(
+//             std::make_shared<fresco::leesedwards_distance<3> >(boxvec, shear), boxvec, boxvec[0] / 2);
 //         cell_two.update(x);
 //         EXPECT_EQ(cell_two.get_nr_cells(), 8u);
 //         EXPECT_EQ(cell_two.get_nr_cellsx(), 2u);
 //         //std::cout << "nr_unique_pairs: two:\n" << get_nr_unique_pairs(x, cell_two) << "\n";
-//         ha::CellLists<ha::leesedwards_distance<3> > cell_three(
-//             std::make_shared<ha::leesedwards_distance<3> >(boxvec, shear), boxvec, boxvec[0] / 3);
+//         fresco::CellLists<fresco::leesedwards_distance<3> > cell_three(
+//             std::make_shared<fresco::leesedwards_distance<3> >(boxvec, shear), boxvec, boxvec[0] / 3);
 //         cell_three.update(x);
 //         EXPECT_EQ(cell_three.get_nr_cells(), 27u);
 //         EXPECT_EQ(cell_three.get_nr_cellsx(), 3u);
@@ -481,15 +481,15 @@ TEST_F(CellListsTestHomogeneous3D, GridAndSpacing_Works) {
 // }
 
 TEST_F(CellListsTestHomogeneous3D, GridAndSpacingCartesian_Works) {
-    ha::CellLists<ha::cartesian_distance<3> > cell_one(std::make_shared<ha::cartesian_distance<3> >(), boxvec, boxvec[0]);
+    fresco::CellLists<fresco::cartesian_distance<3> > cell_one(std::make_shared<fresco::cartesian_distance<3> >(), boxvec, boxvec[0]);
     EXPECT_EQ(cell_one.get_nr_cells(), 1u);
     EXPECT_EQ(cell_one.get_nr_cellsx(), 1u);
     //std::cout << "nr_unique_pairs: one:\n" << get_nr_unique_pairs(x, cell_one) << "\n";
-    ha::CellLists<ha::cartesian_distance<3> > cell_two(std::make_shared<ha::cartesian_distance<3> >(), boxvec, boxvec[0] / 2);
+    fresco::CellLists<fresco::cartesian_distance<3> > cell_two(std::make_shared<fresco::cartesian_distance<3> >(), boxvec, boxvec[0] / 2);
     EXPECT_EQ(cell_two.get_nr_cells(), 8u);
     EXPECT_EQ(cell_two.get_nr_cellsx(), 2u);
     //std::cout << "nr_unique_pairs: two:\n" << get_nr_unique_pairs(x, cell_two) << "\n";
-    ha::CellLists<ha::cartesian_distance<3> > cell_three(std::make_shared<ha::cartesian_distance<3> >(), boxvec, boxvec[0] / 3);
+    fresco::CellLists<fresco::cartesian_distance<3> > cell_three(std::make_shared<fresco::cartesian_distance<3> >(), boxvec, boxvec[0] / 3);
     EXPECT_EQ(cell_three.get_nr_cells(), 27u);
     EXPECT_EQ(cell_three.get_nr_cellsx(), 3u);
 }
@@ -526,29 +526,29 @@ public:
 };
 
 TEST_F(CellListsTestHomogeneous2D, GridAndSpacing_Works) {
-    ha::CellLists<ha::periodic_distance<2> > cell_one(std::make_shared<ha::periodic_distance<2> >(boxvec), boxvec, boxvec[0]);
+    fresco::CellLists<fresco::periodic_distance<2> > cell_one(std::make_shared<fresco::periodic_distance<2> >(boxvec), boxvec, boxvec[0]);
     EXPECT_EQ(cell_one.get_nr_cells(), 1u);
     EXPECT_EQ(cell_one.get_nr_cellsx(), 1u);
     //std::cout << "nr_unique_pairs: one:\n" << get_nr_unique_pairs(x, cell_one) << "\n";
-    ha::CellLists<ha::periodic_distance<2> > cell_two(std::make_shared<ha::periodic_distance<2> >(boxvec), boxvec, boxvec[0] / 2);
+    fresco::CellLists<fresco::periodic_distance<2> > cell_two(std::make_shared<fresco::periodic_distance<2> >(boxvec), boxvec, boxvec[0] / 2);
     EXPECT_EQ(cell_two.get_nr_cells(), 4u);
     EXPECT_EQ(cell_two.get_nr_cellsx(), 2u);
     //std::cout << "nr_unique_pairs: two:\n" << get_nr_unique_pairs(x, cell_two) << "\n";
-    ha::CellLists<ha::periodic_distance<2> > cell_three(std::make_shared<ha::periodic_distance<2> >(boxvec), boxvec, boxvec[0] / 3);
+    fresco::CellLists<fresco::periodic_distance<2> > cell_three(std::make_shared<fresco::periodic_distance<2> >(boxvec), boxvec, boxvec[0] / 3);
     EXPECT_EQ(cell_three.get_nr_cells(), 9u);
     EXPECT_EQ(cell_three.get_nr_cellsx(), 3u);
 }
 
 TEST_F(CellListsTestHomogeneous2D, GridAndSpacingCartesian_Works) {
-    ha::CellLists<ha::cartesian_distance<2> > cell_one(std::make_shared<ha::cartesian_distance<2> >(), boxvec, boxvec[0]);
+    fresco::CellLists<fresco::cartesian_distance<2> > cell_one(std::make_shared<fresco::cartesian_distance<2> >(), boxvec, boxvec[0]);
     EXPECT_EQ(cell_one.get_nr_cells(), 1u);
     EXPECT_EQ(cell_one.get_nr_cellsx(), 1u);
     //std::cout << "nr_unique_pairs: one:\n" << get_nr_unique_pairs(x, cell_one) << "\n";
-    ha::CellLists<ha::cartesian_distance<2> > cell_two(std::make_shared<ha::cartesian_distance<2> >(), boxvec, boxvec[0] / 2);
+    fresco::CellLists<fresco::cartesian_distance<2> > cell_two(std::make_shared<fresco::cartesian_distance<2> >(), boxvec, boxvec[0] / 2);
     EXPECT_EQ(cell_two.get_nr_cells(), 4u);
     EXPECT_EQ(cell_two.get_nr_cellsx(), 2u);
     //std::cout << "nr_unique_pairs: two:\n" << get_nr_unique_pairs(x, cell_two) << "\n";
-    ha::CellLists<ha::cartesian_distance<2> > cell_three(std::make_shared<ha::cartesian_distance<2> >(), boxvec, boxvec[0] / 3);
+    fresco::CellLists<fresco::cartesian_distance<2> > cell_three(std::make_shared<fresco::cartesian_distance<2> >(), boxvec, boxvec[0] / 3);
     EXPECT_EQ(cell_three.get_nr_cells(), 9u);
     EXPECT_EQ(cell_three.get_nr_cellsx(), 3u);
 }
@@ -557,7 +557,7 @@ TEST_F(CellListsTestHomogeneous2D, GridAndSpacingCartesian_Works) {
 class LatticeNeighborsTest : public ::testing::Test {
 public:
     static const size_t ndim = 3;
-    typedef ha::periodic_distance<ndim> dist_t;
+    typedef fresco::periodic_distance<ndim> dist_t;
     std::vector<double> boxvec;
     double rcut;
     std::vector<size_t> ncells_vec;
@@ -582,9 +582,9 @@ public:
 TEST_F(LatticeNeighborsTest, LargeRcut_Works)
 {
     static size_t const ndim = 3;
-    typedef ha::periodic_distance<ndim> dist_t;
+    typedef fresco::periodic_distance<ndim> dist_t;
 
-    ha::LatticeNeighbors<dist_t> lattice(dist, boxvec, rcut, ncells_vec);
+    fresco::LatticeNeighbors<dist_t> lattice(dist, boxvec, rcut, ncells_vec);
 
     size_t icell = 8+3;
     auto v = lattice.global_ind_to_cell_vec(icell);
@@ -625,7 +625,7 @@ TEST_F(LatticeNeighborsTest, LargeRcut_Works)
     }
     ASSERT_EQ(count_neighbors, lattice.m_ncells * (lattice.m_ncells+1)/2);
 
-    ha::VecN<ndim> xpos(0.1);
+    fresco::VecN<ndim> xpos(0.1);
     size_t icell1, isubdom1;
     lattice.position_to_local_ind(xpos.data(), icell1, isubdom1);
 
@@ -640,10 +640,10 @@ TEST_F(LatticeNeighborsTest, LargeRcut_Works)
 TEST_F(LatticeNeighborsTest, SmallRcut_Works2)
 {
     static size_t const ndim = 3;
-    typedef ha::periodic_distance<ndim> dist_t;
+    typedef fresco::periodic_distance<ndim> dist_t;
     rcut = .1; // small rcut means only adjacent cells are neighbors
 
-    ha::LatticeNeighbors<dist_t> lattice(dist, boxvec, rcut, ncells_vec);
+    fresco::LatticeNeighbors<dist_t> lattice(dist, boxvec, rcut, ncells_vec);
 
     auto neibs = lattice.find_all_global_neighbor_inds(0);
     ASSERT_EQ(neibs.size(), size_t(2*3*3));
@@ -678,10 +678,10 @@ TEST_F(LatticeNeighborsTest, NonPeriodic_Works2)
 {
     static size_t const ndim = 3;
     double rcut = .1; // small rcut means only adjacent cells are neighbors
-    typedef ha::cartesian_distance<ndim> dist_t;
+    typedef fresco::cartesian_distance<ndim> dist_t;
     auto cart_dist = std::make_shared<dist_t> ();
 
-    ha::LatticeNeighbors<dist_t> lattice(cart_dist, boxvec, rcut, ncells_vec);
+    fresco::LatticeNeighbors<dist_t> lattice(cart_dist, boxvec, rcut, ncells_vec);
 
     auto neibs = lattice.find_all_global_neighbor_inds(0);
     ASSERT_EQ(neibs.size(), size_t(2*2*2));
@@ -697,15 +697,15 @@ TEST_F(LatticeNeighborsTest, NonPeriodic_Works2)
 TEST_F(LatticeNeighborsTest, positionToCellVec_BoxBoundaryWorks)
 {
     static size_t const ndim = 3;
-    typedef ha::periodic_distance<ndim> dist_t;
-    ha::LatticeNeighbors<dist_t> lattice(dist, boxvec, rcut, ncells_vec);
+    typedef fresco::periodic_distance<ndim> dist_t;
+    fresco::LatticeNeighbors<dist_t> lattice(dist, boxvec, rcut, ncells_vec);
 
     double boxboundary = boxvec[0] * 0.5;
     for (int i = -20; i <= 20; i++) {
         for (int j = -20; j <= 20; j++) {
             std::vector<double> coords(ndim, 0);
             coords[0] = i * boxboundary + j * std::numeric_limits<double>::epsilon();
-            ha::VecN<ndim, size_t> cell_vec = lattice.position_to_cell_vec(coords.data());
+            fresco::VecN<ndim, size_t> cell_vec = lattice.position_to_cell_vec(coords.data());
             EXPECT_LT(cell_vec[0], lattice.m_ncells_vec[0]);
         }
     }
@@ -781,7 +781,7 @@ public:
 };
 
 template<typename distance_policy>
-size_t get_neighbors(std::vector<double> & coords, std::vector<long> & iatoms, std::vector<double> & old_coords, ha::CellLists<distance_policy> & cl)
+size_t get_neighbors(std::vector<double> & coords, std::vector<long> & iatoms, std::vector<double> & old_coords, fresco::CellLists<distance_policy> & cl)
 {
     stupid_counter<distance_policy::_ndim> counter;
     cl.update_specific(coords, iatoms, old_coords);
@@ -791,7 +791,7 @@ size_t get_neighbors(std::vector<double> & coords, std::vector<long> & iatoms, s
 }
 
 TEST_F(CellListsSpecificTest, Number_of_neighbors){
-    ha::CellLists<ha::periodic_distance<2>> cell(std::make_shared<ha::periodic_distance<2> >(boxvec), boxvec, rcut);
+    fresco::CellLists<fresco::periodic_distance<2>> cell(std::make_shared<fresco::periodic_distance<2> >(boxvec), boxvec, rcut);
     std::vector<long> iatoms(0);
     std::vector<double> old_coords(0);
     for (long i = 0; i < nparticles; ++i) {
@@ -816,7 +816,7 @@ size_t get_overlaps(
     std::vector<long> const & iatoms,
     std::vector<double> const & old_coords,
     std::vector<double> const & radii,
-    ha::CellLists<distance_policy> & cl,
+    fresco::CellLists<distance_policy> & cl,
     std::shared_ptr<distance_policy> const & dist)
 {
     overlap_counter<distance_policy> counter(coords, radii, dist);
@@ -827,8 +827,8 @@ size_t get_overlaps(
 }
 
 TEST_F(CellListsSpecificTest, Number_of_overlaps){
-    auto dist = std::make_shared<ha::periodic_distance<2> >(boxvec);
-    ha::CellLists<ha::periodic_distance<2>> cell(dist, boxvec, rcut);
+    auto dist = std::make_shared<fresco::periodic_distance<2> >(boxvec);
+    fresco::CellLists<fresco::periodic_distance<2>> cell(dist, boxvec, rcut);
     std::vector<long> iatoms(0);
     std::vector<double> old_coords(0);
     for (long i = 10; i < 40; ++i) {

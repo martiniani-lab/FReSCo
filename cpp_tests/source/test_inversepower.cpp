@@ -2,10 +2,10 @@
 #include <stdexcept>
 #include <gtest/gtest.h>
 
-#include "hyperalg/inversepower_potential.hpp"
+#include "FReSCo/inversepower_potential.hpp"
 
-using ha::InversePowerPeriodic;
-using ha::InversePowerCartesian;
+using fresco::InversePowerPeriodic;
+using fresco::InversePowerCartesian;
 
 static double const EPS = std::numeric_limits<double>::min();
 #define EXPECT_NEAR_RELATIVE(A, B, T)  EXPECT_NEAR(A/(fabs(A)+fabs(B) + EPS), B/(fabs(A)+fabs(B) + EPS), T)
@@ -121,19 +121,19 @@ TEST_F(InversePowerTest, MetaPowFunctionsBasic_Work){
     double true_result_direct = op * op * op * op * op;
     double true_result_std = std::pow(op, POW);
     EXPECT_DOUBLE_EQ(true_result_direct, true_result_std);
-    EXPECT_DOUBLE_EQ(true_result_direct, ha::pos_int_pow<POW>(op));
+    EXPECT_DOUBLE_EQ(true_result_direct, fresco::pos_int_pow<POW>(op));
     true_result_direct = double(1) / true_result_direct;
     true_result_std = std::pow(op, - POW);
     EXPECT_DOUBLE_EQ(true_result_direct, true_result_std);
-    EXPECT_DOUBLE_EQ(true_result_direct, ha::neg_int_pow<- POW>(op));
+    EXPECT_DOUBLE_EQ(true_result_direct, fresco::neg_int_pow<- POW>(op));
     true_result_direct = std::sqrt(op * op * op * op * op);
     true_result_std = std::pow(op, 0.5 * POW);
     EXPECT_DOUBLE_EQ(true_result_direct, true_result_std);
-    EXPECT_DOUBLE_EQ(true_result_direct, ha::pos_half_int_pow<POW>(op));
+    EXPECT_DOUBLE_EQ(true_result_direct, fresco::pos_half_int_pow<POW>(op));
     true_result_direct = double(1) / std::sqrt(op * op * op * op * op);
     true_result_std = std::pow(op, - 0.5 * POW);
     EXPECT_DOUBLE_EQ(true_result_direct, true_result_std);
-    EXPECT_DOUBLE_EQ(true_result_direct, ha::neg_half_int_pow<- POW>(op));
+    EXPECT_DOUBLE_EQ(true_result_direct, fresco::neg_half_int_pow<- POW>(op));
 }
 
 //
