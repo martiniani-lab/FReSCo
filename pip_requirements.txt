@@ -3,7 +3,6 @@ matplotlib
 future
 cython==0.29.36
 scipy
-torch --index-url https://download.pytorch.org/whl/cpu
 jscatter
 hickle
 daiquiri
