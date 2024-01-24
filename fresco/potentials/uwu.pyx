@@ -11,8 +11,8 @@ cdef class _Cdef_UwU(_fresco.BasePotential):
                         np.ndarray L, double eps=1e-6):
         self.K = K
         self.N = N
-        self.Sk = Sk.ravel()
-        self.V = V.ravel()
+        self.Sk = np.fft.ifftshift(Sk).ravel()
+        self.V = np.fft.ifftshift(V).ravel()
         assert len(self.Sk) == len(self.V)
         self.L = L
         self.ndim = len(L)

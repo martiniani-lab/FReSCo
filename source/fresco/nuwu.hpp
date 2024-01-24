@@ -135,37 +135,6 @@ class NUwU: public BasePotential{
             return _c;
         }
 
-        void update_c(const std::vector<double> points)
-        {
-	    //c.assign(c.size(),1);
-	    //dc.assign(dc.size(),0);
-            std::complex<double> sum(0,0);
-            std::complex<double> count(c.size(),0);
-            double r = 0;
-            for (size_t i=0; i < c.size(); i++)
-	    {
-                r = 0;
-                for (size_t j=0; j<ndim; j++)
-		{
-                    r += (points[ndim*i+j]-0.5*L[j])*(points[ndim*i+j]-0.5*L[j]);
-                }
-                c[i] = radii[i]*(0.54+0.46*cos(sqrt(r/ndim)*2*M_PI));
-                for (size_t j=0; j<ndim; j++)
-		{
-                    dc[ndim*i+j] = -radii[i]*0.46*sin(sqrt(r/ndim)*2*M_PI)*(points[ndim*i+j]-0.5*L[j])*2*M_PI/sqrt(ndim*r);
-                }
-                sum += c[i];
-	    } 
-            /*for (size_t i=0; i < c.size(); i++)
-	    {
-                c[i] *= count/sum;
-                for (size_t j=0; j<ndim; j++)
-		{
-                    dc[ndim*i+j] *= count/sum*(1.0-c[i]/count);
-                }
-	    }*/
-            return;
-        }
 
         virtual double get_energy(const std::vector<double>& points)
         {
@@ -307,13 +276,11 @@ class NUwU: public BasePotential{
          
             // Calculate Gradient
             finufft_execute(plan2, &cx[0], &fx[0]);
-            finufft_execute(plan2, &cy[0], &factor[0]);
-            phi = 0.0;
+            //finufft_execute(plan2, &cy[0], &factor[0]);
             //#pragma omp parallel for
             for (size_t j = 0; j < N; j++)
             {
-                phi += std::real(c[j]);
-                grad[ndim*j]   = std::real(cx[j]*std::conj(c[j])+cy[j]*std::conj(dc[ndim*j]));
+                grad[ndim*j]   = std::real(cx[j]*std::conj(c[j]));
             }
             if (ndim > 1)
             {
@@ -321,7 +288,7 @@ class NUwU: public BasePotential{
                 #pragma omp parallel for
                 for (size_t j = 0; j < N; j++)
                 {
-                    grad[ndim*j+1] = std::real(cx[j]*std::conj(c[j])+cy[j]*std::conj(dc[ndim*j+1]));
+                    grad[ndim*j+1] = std::real(cx[j]*std::conj(c[j]));
                 }
             }
             if (ndim > 2)
@@ -330,12 +297,8 @@ class NUwU: public BasePotential{
                 #pragma omp parallel for
                 for (size_t j = 0; j < N; j++)
                 {
-                    grad[ndim*j+2] = std::real(cx[j]*std::conj(c[j])+cy[j]*std::conj(dc[ndim*j+2]));
+                    grad[ndim*j+2] = std::real(cx[j]*std::conj(c[j]));
                 }
-            }
-            for (size_t j=0; j < grad.size(); j++)
-            {
-                grad[j] = std::real(dc[j]);
             }
             return phi;
         }
