@@ -111,12 +111,8 @@ class ModuleList:
 parser = argparse.ArgumentParser(add_help=False)
 parser.add_argument("-j", type=int, default=1)
 parser.add_argument("-c", "--compiler", type=str, default=None)
-parser.add_argument("--omp", action='store_true', default=False)
 jargs, remaining_args = parser.parse_known_args(sys.argv)
 
-if "--omp" in sys.argv:
-    #from https://github.com/scipy/scipy/blob/master/setup.py#L587
-    sys.argv.remove('--omp')
 
 # record c compiler choice. use unix (gcc) by default  
 # Add it back into remaining_args so distutils can see it also

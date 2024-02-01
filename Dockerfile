@@ -32,6 +32,6 @@ RUN pip install --no-cache-dir --upgrade pip \
 
 COPY . .
 RUN rm -rf cythonize.dat build
-RUN python setup.py build_ext -i -c gcc --omp
+RUN python setup.py build_ext -i -c gcc
 
 RUN echo "export PYTHONPATH=$PYTHONPATH:/usr/src/app" >> ~/.bashrc
