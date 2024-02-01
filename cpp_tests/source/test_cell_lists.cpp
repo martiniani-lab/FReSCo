@@ -11,12 +11,7 @@
 #include <ctime>
 #include <algorithm>
 #include <vector>
-
-#if __APPLE__
-#include "/usr/local/opt/libomp/include/omp.h"
-#else
 #include <omp.h>
-#endif
 
 static double const EPS = std::numeric_limits<double>::min();
 #define EXPECT_NEAR_RELATIVE(A, B, T)  EXPECT_NEAR(A/(fabs(A)+fabs(B) + EPS), B/(fabs(A)+fabs(B) + EPS), T)

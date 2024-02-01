@@ -8,12 +8,7 @@
 #include "fresco/check_overlap.hpp"
 #include "fresco/check_overlap_cell_lists.hpp"
 #include "test_utils.hpp"
-
-#if __APPLE__
-#include "/usr/local/opt/libomp/include/omp.h"
-#else
 #include <omp.h>
-#endif
 
 using fresco::periodic_distance;
 using fresco::cartesian_distance;

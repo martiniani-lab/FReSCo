@@ -6,12 +6,37 @@
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
 
+enable_language(CXX)
+
+# osx makes the suffix for shared object libraries .dylib
+if(APPLE)
+  SET(CMAKE_SHARED_LIBRARY_SUFFIX ".so")
+  SET(CMAKE_MACOSX_RPATH ON)
+endif(APPLE)
 
 set(numpy_include __NUMPY_INCLUDE__)
 set(PYTHON_INCLUDE_DIRS __PYTHON_INCLUDE__)
-__FINUFFT_INCLUDE__
 set(PYTHON_LDFLAGS "__PYTHON_LDFLAGS__")
-find_library(FFTW3_LIB fftw3)
+
+find_library(FFTW3_LIB fftw3 REQUIRED)
+message("FFTW3_LIB: ${FFTW3_LIB}")
+find_path(FFTW3_INCLUDE_DIR fftw3.h REQUIRED)
+message("FFTW3_INCLUDE_DIR: ${FFTW3_INCLUDE_DIR}")
+# set OpenMP
+find_package(OpenMP REQUIRED)
+message("OpenMP C flags: ${OpenMP_C_FLAGS}")
+message("OpenMP CXX flags: ${OpenMP_CXX_FLAGS}")
+find_library("FINUFFT_LIB" finufft)
+message("FINUFFT_LIB: ${FINUFFT_LIB}")
+find_path("FINUFFT_INCLUDE_DIR" finufft.h)
+message("FINUFFT_INCLUDE_DIR: ${FINUFFT_INCLUDE_DIR}")
+if(APPLE)
+    if(NOT ${FINUFFT_LIB} STREQUAL "FINUFFT_LIB-NOTFOUND")
+        get_filename_component(FINUFFT_LIB_DIR ${FINUFFT_LIB} DIRECTORY)
+        message("FINUFFT_LIB_DIR: ${FINUFFT_LIB_DIR}")
+        set(CMAKE_BUILD_RPATH ${FINUFFT_LIB_DIR})
+    endif(NOT ${FINUFFT_LIB} STREQUAL "FINUFFT_LIB-NOTFOUND")
+endif(APPLE)
 
 message("python include dirs: ${PYTHON_INCLUDE_DIRS}")
 message("C include dirs: ${C_INCLUDE_DIRS}")
@@ -19,11 +44,19 @@ message("numpy include dirs: ${numpy_include}")
 include_directories(${numpy_include})
 include_directories(${PYTHON_INCLUDE_DIRS})
 include_directories(${C_INCLUDE_DIRS})
+include_directories(${FFTW3_INCLUDE_DIR})
+if(NOT ${FINUFFT_INCLUDE_DIR} STREQUAL "FINUFFT_INCLUDE_DIR-NOTFOUND")
+    include_directories(${FINUFFT_INCLUDE_DIR})
+endif(NOT ${FINUFFT_INCLUDE_DIR} STREQUAL "FINUFFT_INCLUDE_DIR-NOTFOUND")
 
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 3.8)
+
+project(fresco)
 
 enable_language(CXX)
 SET(CMAKE_CXX_FLAGS __COMPILER_EXTRA_ARGS__)
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
 
 #cmake_policy(SET CMP0015 NEW)
 
@@ -40,15 +73,37 @@ FILE(GLOB fresco_sources ${fresco_include}/*.c*)
 
 add_library(fresco_lib SHARED ${fresco_sources})
 
+# Apple changed the ld linker in Xcode 15 which breaks pele.
+# The classic linker can be chosen with -ld_classic flag.
+# However, on older Xcode versions, this flag throws an error.
+# Thus, we simply check here whether this flag exists.
+# See https://www.scivision.dev/xcode-ld_classic/
+# For the undefined flag, see
+# https://github.com/nasa/cFE/issues/476#issuecomment-579436106
+if(APPLE)
+  include(CheckLinkerFlag)
+  check_linker_flag(C "-ld_classic" CLASSIC_FLAG)
+  if(CLASSIC_FLAG)
+    set(APPLE_LINK_OPTIONS "LINKER:-undefined,dynamic_lookup,-ld_classic")
+  else(CLASSIC_FLAG)
+    set(APPLE_LINK_OPTIONS "LINKER:-undefined,dynamic_lookup")
+  endif(CLASSIC_FLAG)
+endif(APPLE)
+
 # build the fresco library
 
 function(make_cython_lib cython_cxx_source)
   get_filename_component(library_name ${cython_cxx_source} NAME)
   string(REGEX REPLACE ".cxx$" "" library_name ${library_name})
   add_library(${library_name} SHARED ${cython_cxx_source})
-  target_link_libraries(${library_name} PUBLIC fresco_lib) 
-  __FINUFFT_LIBRARY__
-  target_link_libraries(${library_name} ${FFTW3_LIB})#/usr/lib/x86_64-linux-gnu/libfftw3_omp.so) 
+  target_link_libraries(${library_name} PUBLIC fresco_lib)
+  if(NOT ${FINUFFT_LIB} STREQUAL "FINUFFT_LIB-NOTFOUND")
+    target_link_libraries(${library_name} PUBLIC ${FINUFFT_LIB})
+  endif(NOT ${FINUFFT_LIB} STREQUAL "FINUFFT_LIB-NOTFOUND")
+  target_link_libraries(${library_name} PUBLIC ${FFTW3_LIB})
+  if(APPLE)
+    target_link_options(${library_name} PUBLIC ${APPLE_LINK_OPTIONS})
+  endif(APPLE)
   set_target_properties(${library_name} PROPERTIES PREFIX "")
   message("making library ${library_name} from source ${cython_cxx_source}")
 endfunction(make_cython_lib)
