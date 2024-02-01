@@ -12,5 +12,15 @@ unzip it and put it in source/gtest
 build the tests
 
   mkdir build && cd build
-  cmake ../source
-make -j8
+  cmake ../
+  make -j8
+
+on MacOs, point cmake to the Gnu compilers
+that were installed with homebrew
+(here gcc-13 and g++-13)
+
+  cmake -DCMAKE_C_COMPILER=gcc-13 -DCMAKE_CXX_COMPILER=g++-13 ../
+
+run the tests
+
+  ./test_main

@@ -1,11 +1,5 @@
 cmake_minimum_required(VERSION 3.19.1)
 
-if(APPLE)
-#https://stackoverflow.com/questions/29902862/how-to-get-cmake-to-use-the-default-compiler-on-system-path
-find_program(CMAKE_C_COMPILER NAMES $ENV{CC} clang PATHS ENV PATH NO_DEFAULT_PATH)
-find_program(CMAKE_CXX_COMPILER NAMES $ENV{CXX} clang++ PATHS ENV PATH NO_DEFAULT_PATH)
-endif()
-
 project(hyperalg)
 
 # if not specified by user, the standard build type is release
@@ -14,13 +8,6 @@ if(NOT CMAKE_BUILD_TYPE)
 endif(NOT CMAKE_BUILD_TYPE)
 
 enable_language(CXX)
-SET(CMAKE_CXX_FLAGS "-march=native -mavx -O3 -g -Wall -ansi -pedantic -std=c++17")
-#ADD_DEFINITIONS(-O3)
-#ADD_DEFINITIONS(-std=c++17)
-#ADD_DEFINITIONS(-Wall)
-#ADD_DEFINITIONS(-g)
-
-#cmake_policy(SET CMP0015 NEW)
 
 #set OpenMP
 find_package(OpenMP)
@@ -28,6 +15,14 @@ if (OPENMP_FOUND)
     set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
     set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
 endif()
+
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=native -O3 -g -Wall -ansi -pedantic -std=c++17")
+
+include(CheckCXXCompilerFlag)
+check_cxx_compiler_flag("-mavx" COMPILER_SUPPORTS_AVX)
+if(COMPILER_SUPPORTS_AVX)
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mavx")
+endif(COMPILER_SUPPORTS_AVX)
 
 # Add and compile the gtest library
 set(gtest_src ../gtest)
