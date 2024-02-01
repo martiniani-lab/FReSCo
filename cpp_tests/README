@@ -13,7 +13,7 @@ build the tests
 
   mkdir build && cd build
   cmake ../
-  make -j8
+  cmake --build . -j8
 
 on MacOs, point cmake to the Gnu compilers
 that were installed with homebrew

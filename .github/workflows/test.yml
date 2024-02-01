@@ -47,7 +47,7 @@ jobs:
           cd cpp_tests/source 
           mkdir build && cd build
           cmake ../
-          make
+          cmake --build . -j
       - name: Run C++ tests
         run: |
           cd cpp_tests/source
@@ -104,7 +104,7 @@ jobs:
           cd cpp_tests/source 
           mkdir build && cd build
           cmake ../
-          make
+          cmake --build . -j
       - name: Run C++ tests
         run: |
           cd cpp_tests/source
