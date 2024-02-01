@@ -41,7 +41,7 @@ jobs:
       - name: Get gtest
         run: |
           cd cpp_tests
-          ./get_gtest.sh
+          bash get_gtest.sh
       - name: Build C++ tests
         run: |
           cd cpp_tests/source 
@@ -98,7 +98,7 @@ jobs:
       - name: Get gtest
         run: |
           cd cpp_tests
-          ./get_gtest.sh
+          bash get_gtest.sh
       - name: Build C++ tests
         run: |
           cd cpp_tests/source 
