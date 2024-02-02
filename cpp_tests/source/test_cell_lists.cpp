@@ -1,4 +1,4 @@
-#include "FResCo/vecN.hpp"
+#include "fresco/vecN.hpp"
 #include "fresco/cell_lists.hpp"
 #include "fresco/distance.hpp"
 #include "fresco/inversepower_potential.hpp"
