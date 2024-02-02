@@ -281,14 +281,12 @@ cxx_files = ["fresco/distances/_get_distance_cpp.cxx",
 finufft_dir = os.getcwd() + '/finufft/'
 if not os.path.isdir(finufft_dir):
     raise RuntimeError("Invalid finufft path! Please enter a valid path for finufft_dir in setup.py")
-    
 
+cxx_files.append("fresco/potentials/uwu.cxx")
+cxx_files.append("fresco/potentials/nuwu.cxx")
+cxx_files.append("fresco/potentials/uwnu.cxx")
+cxx_files.append("fresco/potentials/nuwnu.cxx")
 
-if len(finufft_dir)>0:
-    cxx_files.append("fresco/potentials/uwu.cxx")
-    cxx_files.append("fresco/potentials/nuwu.cxx")
-    cxx_files.append("fresco/potentials/uwnu.cxx")
-    cxx_files.append("fresco/potentials/nuwnu.cxx")
 
 def get_ldflags(opt="--ldflags"):
     """return the ldflags.  This was taken directly from python-config"""
