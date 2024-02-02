@@ -50,7 +50,7 @@ jobs:
           cmake --build . -j
       - name: Run C++ tests
         run: |
-          cd cpp_tests/source
+          cd cpp_tests/source/build
           ./test_main
       - name: Clone FINUFFT
         run: |
@@ -107,7 +107,7 @@ jobs:
           cmake --build . -j
       - name: Run C++ tests
         run: |
-          cd cpp_tests/source
+          cd cpp_tests/source/build
           ./test_main
       - name: Clone FINUFFT
         run: |
