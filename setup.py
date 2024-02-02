@@ -1,19 +1,15 @@
 from __future__ import print_function
 from builtins import str
 from past.builtins import basestring
-from builtins import object
 import os
 import sys
 import subprocess
 import shutil
-import argparse
 import shlex
-from sys import platform
 try:
     from setuptools import setup
 except ImportError:
     from distutils.core import setup
-from numpy.distutils.core import Extension
 import argparse
 import numpy as np
 from distutils import sysconfig
@@ -84,16 +80,6 @@ def generate_cython():
         raise RuntimeError("Running cythonize failed!")
 
 
-if os.name == 'posix':
-    if platform == 'linux':
-        os.environ["CC"] = "g++"
-        os.environ["CXX"] = "g++"
-    elif platform == 'darwin':
-        os.environ["CC"] = "clang++"
-        os.environ["CXX"] = "clang++"
-    else:
-        raise RuntimeError
-
 generate_cython()
 
 
@@ -111,22 +97,20 @@ class ModuleList:
 parser = argparse.ArgumentParser(add_help=False)
 parser.add_argument("-j", type=int, default=1)
 parser.add_argument("-c", "--compiler", type=str, default=None)
-parser.add_argument("--omp", action='store_true', default=False)
 jargs, remaining_args = parser.parse_known_args(sys.argv)
 
-if "--omp" in sys.argv:
-    #from https://github.com/scipy/scipy/blob/master/setup.py#L587
-    sys.argv.remove('--omp')
 
 # record c compiler choice. use unix (gcc) by default  
 # Add it back into remaining_args so distutils can see it also
 idcompiler = None
 if not jargs.compiler or jargs.compiler in ("unix", "gnu", "gcc"):
     idcompiler = "unix"
-    remaining_args += ["-c", idcompiler]
+    if jargs.compiler:
+        remaining_args += ["-c", idcompiler]
 elif jargs.compiler in ("intelem", "intel", "icc", "icpc"):
     idcompiler = "intel"
-    remaining_args += ["-c", idcompiler]
+    if jargs.compiler:
+        remaining_args += ["-c", idcompiler]
 
 # set the remaining args back as sys.argv
 sys.argv = remaining_args
@@ -140,14 +124,134 @@ else:
 cmake_compiler_extra_args = ["-std=c++0x","-Wall", "-Wextra", "-pedantic", "-O3", "-fPIC"]
 
 if idcompiler.lower() == 'unix':
-    if platform == 'darwin':
-        cmake_compiler_extra_args += ['-march=native', '-flto', '-Xpreprocessor -fopenmp -I/usr/local/opt/libomp/include'] #Fixes issues with fopenmp
-    else: 
-        cmake_compiler_extra_args += ['-march=native', '-flto', '-fopenmp']
+    cmake_compiler_extra_args += ['-march=native', '-flto']
 else:
     cmake_compiler_extra_args += ['-axCORE-AVX2', '-ipo', '-qopenmp', '-ip', '-unroll',
                                   '-qopt-report']
-    
+
+
+def get_compiler_env(compiler_id, addition_library_paths=[]):
+    """
+    set environment variables for the C and C++ compiler:
+    set CC and CXX paths to `which` output because cmake
+    does not alway choose the right compiler
+    """
+    env = os.environ.copy()
+
+    if compiler_id.lower() in ("unix"):
+        print(env, "eeenv")
+        if sys.platform.startswith("darwin"):
+            cc = None
+            version = 20
+            while version > 9:
+                try:
+                    cc = (
+                        (subprocess.check_output(["which", f"gcc-{version}"]))
+                        .decode(encoding)
+                        .rstrip("\n")
+                    )
+                    break
+                except subprocess.CalledProcessError:
+                    version -= 1
+            if version == 9:
+                raise RuntimeError("Could not detect a GNU C compiler "
+                                   "with an executable in the format 'gcc-version' "
+                                   "on your darwin platform (tried versions 10 to "
+                                   "20). Make sure that you installed a GNU C "
+                                   "compiler and that its executable is in one of your "
+                                   "PATH directories.")
+            assert cc is not None
+            env["CC"] = cc
+            env["CXX"] = (
+                (subprocess.check_output(["which", f"g++-{version}"]))
+                .decode(encoding)
+                .rstrip("\n")
+            )
+            # Numpy distutils looks for the F90 environment variable to
+            # determine the Fortran compiler.
+            # See https://stackoverflow.com/questions/55373559/numpy-distutils-specify-intel-fortran-compiler-in-setup-py
+            env["F90"] = (
+                (subprocess.check_output(["which", f"gfortran-{version}"]))
+                .decode(encoding)
+                .rstrip("\n")
+            )
+            # Cmake looks for the FC environment variable to determine
+            # the Fortran compiler.
+            # See https://cmake.org/cmake/help/latest/envvar/FC.html
+            env["FC"] = (
+                (subprocess.check_output(["which", f"gfortran-{version}"]))
+                .decode(encoding)
+                .rstrip("\n")
+            )
+        else:
+            env["CC"] = (
+                (subprocess.check_output(["which", "gcc"]))
+                .decode(encoding)
+                .rstrip("\n")
+            )
+            env["CXX"] = (
+                (subprocess.check_output(["which", "g++"]))
+                .decode(encoding)
+                .rstrip("\n")
+            )
+        env["LD"] = (
+            (subprocess.check_output(["which", "ld"]))
+            .decode(encoding)
+            .rstrip("\n")
+        )
+        env["AR"] = (
+            (subprocess.check_output(["which", "ar"]))
+            .decode(encoding)
+            .rstrip("\n")
+        )
+    elif compiler_id.lower() in ("intel"):
+        env["CC"] = (
+            (subprocess.check_output(["which", "icc"]))
+            .decode(encoding)
+            .rstrip("\n")
+        )
+        env["CXX"] = (
+            (subprocess.check_output(["which", "icpc"]))
+            .decode(encoding)
+            .rstrip("\n")
+        )
+        env["LD"] = (
+            (subprocess.check_output(["which", "xild"]))
+            .decode(encoding)
+            .rstrip("\n")
+        )
+        env["AR"] = (
+            (subprocess.check_output(["which", "xiar"]))
+            .decode(encoding)
+            .rstrip("\n")
+        )
+    else:
+        raise Exception("compiler id not known")
+    # this line only works if the build directory has been deleted
+    cmake_compiler_args = shlex.split(
+        "-D CMAKE_EXPORT_COMPILE_COMMANDS=1 "
+        "-D CMAKE_C_COMPILER={} -D CMAKE_CXX_COMPILER={} "
+        "-D CMAKE_LINKER={} -D CMAKE_AR={}".format(
+            env["CC"], env["CXX"], env["LD"], env["AR"]
+        )
+    )
+    fftw = []
+    if sys.platform.startswith("darwin"):
+        fftw.append(
+            (subprocess.check_output(["brew", "--prefix", "fftw"]))
+            .decode(encoding)
+            .rstrip("\n")
+        )
+    cmake_compiler_args.extend(
+        shlex.split(f"-D CMAKE_PREFIX_PATH={';'.join(addition_library_paths + fftw)}")
+    )
+    return env, cmake_compiler_args
+
+
+env, _ = get_compiler_env(idcompiler)
+os.environ = env
+
+
 setup(name='fresco',
       version='0.1',
       author='Stefano Martiniani, Aaron Shih, Mathias Casiulis',
@@ -174,31 +278,35 @@ cxx_files = ["fresco/distances/_get_distance_cpp.cxx",
         "fresco/utils/c_utils.cxx",
              ]
 # Enter your finufft directory here
-finufft_dir = os.getcwd()+'/finufft/'
+finufft_dir = os.getcwd() + '/finufft/'
 if not os.path.isdir(finufft_dir):
     raise RuntimeError("Invalid finufft path! Please enter a valid path for finufft_dir in setup.py")
-    
 
+cxx_files.append("fresco/potentials/uwu.cxx")
+cxx_files.append("fresco/potentials/nuwu.cxx")
+cxx_files.append("fresco/potentials/uwnu.cxx")
+cxx_files.append("fresco/potentials/nuwnu.cxx")
 
-if len(finufft_dir)>0:
-    cxx_files.append("fresco/potentials/uwu.cxx")
-    cxx_files.append("fresco/potentials/nuwu.cxx")
-    cxx_files.append("fresco/potentials/uwnu.cxx")
-    cxx_files.append("fresco/potentials/nuwnu.cxx")
 
 def get_ldflags(opt="--ldflags"):
     """return the ldflags.  This was taken directly from python-config"""
     getvar = sysconfig.get_config_var
     pyver = sysconfig.get_config_var('VERSION')
     libs = getvar('LIBS').split() + getvar('SYSLIBS').split()
-    libs.append('-lpython'+pyver)
+    if not sys.platform.startswith("darwin"):
+        # On MacOs, explicitly including the python library leads to a
+        # segmentation fault when libraries created by cython are
+        # imported
+        libs.append(
+            "-lpython" + pyver
+        )
     # add the prefix/lib/pythonX.Y/config dir, but only if there is no
     # shared library in prefix/lib/.
     if opt == '--ldflags':
         if not getvar('Py_ENABLE_SHARED'):
             libs.insert(0, '-L' + getvar('LIBPL'))
         if not getvar('PYTHONFRAMEWORK'):
-            libs.extend(getvar('LINKFORSHARED').split())
+            libs.extend(getvar("LINKFORSHARED").replace('-Wl,-stack_size,1000000', '').split())
     return ' '.join(libs)
 
 # create file CMakeLists.txt from CMakeLists.txt.in 
@@ -214,52 +322,21 @@ if isinstance(numpy_include, basestring):
 cmake_txt = cmake_txt.replace("__NUMPY_INCLUDE__", " ".join(numpy_include))
 cmake_txt = cmake_txt.replace("__PYTHON_LDFLAGS__", get_ldflags())
 cmake_txt = cmake_txt.replace("__COMPILER_EXTRA_ARGS__", '\"{}\"'.format(" ".join(cmake_compiler_extra_args)))
-if len(finufft_dir)>0:
-    finufft_lib = "target_link_libraries(${library_name} "+ finufft_dir+"lib/libfinufft.so)"
-    finufft_inc = "set(C_INCLUDE_DIRS "+ finufft_dir+"include)"
-else:
-    finufft_lib = ''
-    finufft_inc = ''
-cmake_txt = cmake_txt.replace("__FINUFFT_INCLUDE__",finufft_inc)
-cmake_txt = cmake_txt.replace("__FINUFFT_LIBRARY__",finufft_lib)
-# Now we tell cmake which librarires to build 
+
+# Now we tell cmake which librarires to build
 with open("CMakeLists.txt", "w") as fout:
     fout.write(cmake_txt)
     fout.write("\n")
     for fname in cxx_files:
         fout.write("make_cython_lib(${CMAKE_SOURCE_DIR}/%s)\n" % fname)
 
-def set_compiler_env(compiler_id):
-    """
-    set environment variables for the C and C++ compiler:
-    set CC and CXX paths to `which` output because cmake
-    does not alway choose the right compiler
-    """
-    env = os.environ.copy()
-    if compiler_id.lower() in ("unix"):
-        env["CC"] = (subprocess.check_output(["which", "gcc"])).decode(encoding).rstrip('\n')
-        env["CXX"] = (subprocess.check_output(["which", "g++"])).decode(encoding).rstrip('\n')
-        env["LD"] = (subprocess.check_output(["which", "ld"])).decode(encoding).rstrip('\n')
-        env["AR"] = (subprocess.check_output(["which", "ar"])).decode(encoding).rstrip('\n')
-    elif compiler_id.lower() in ("intel"):
-        env["CC"] = (subprocess.check_output(["which", "icc"])).decode(encoding).rstrip('\n')
-        env["CXX"] = (subprocess.check_output(["which", "icpc"])).decode(encoding).rstrip('\n')
-        env["LD"] = (subprocess.check_output(["which", "xild"])).decode(encoding).rstrip('\n')
-        env["AR"] = (subprocess.check_output(["which", "xiar"])).decode(encoding).rstrip('\n')
-    else:
-        raise Exception("compiler_id not known")
-    #this line only works is the build directory has been deleted
-    cmake_compiler_args = shlex.split("-D CMAKE_C_COMPILER={} -D CMAKE_CXX_COMPILER={} "
-                                      "-D CMAKE_LINKER={} -D CMAKE_AR={}"
-                                      .format(env["CC"], env["CXX"], env["LD"], env["AR"]))
-    return env, cmake_compiler_args
 
-def run_cmake(compiler_id="unix"):
+def run_cmake(finufft_dir, compiler_id="unix"):
     if not os.path.isdir(cmake_build_dir):
         os.makedirs(cmake_build_dir)
     print("\nrunning cmake in directory", cmake_build_dir)
     cwd = os.path.abspath(os.path.dirname(__file__))
-    env, cmake_compiler_args = set_compiler_env(compiler_id)
+    env, cmake_compiler_args = get_compiler_env(compiler_id, [finufft_dir])
 
     p = subprocess.call(["cmake"] + cmake_compiler_args + [cwd], cwd=cmake_build_dir, env=env)
     if p != 0:
@@ -273,7 +350,7 @@ def run_cmake(compiler_id="unix"):
     print("finished building the extension modules with cmake\n")
 
 
-run_cmake(compiler_id=idcompiler)
+run_cmake(finufft_dir, compiler_id=idcompiler)
     
 
 # Now that the cython libraries are built, we have to make sure they are copied to

@@ -20,56 +20,127 @@ We recommend reading our preprint *Fast Generation of Spectrally-Shaped Disorder
 We recommend installing using a Docker container. In particular, it is by far the easiest solution on MacOS.
 The Dockerfile contains the minimal setup for the container. To build a container called frescontainer with a cloned, simply run
 
-`./docker_build.sh`
+```bash
+./docker_build.sh
+```
 
 This may take a few minutes on the first build.
 Then, either run
 
-`./docker_starter.sh`
+```bash
+./docker_starter.sh
+```
 
 to enter the container and run code directly from it, or run
 
-`./docker_starter.sh my_command`
+```bash
+./docker_starter.sh my_command
+```
 
 to run commands in the container from the outside.
 By default, docker_build mounts the examples directory into the docker environment so that outputs are easily accessible from the outside.
 
-
 ## Installation - conda
 
-If instead you prefer using a conda environment, follow these steps after downloading FReSCo
+If instead you prefer using a conda environment, follow these steps after downloading FReSCo.
+
+### Installation of FINUFFT dependency
+
+If you have not already installed FINUFFT, you can do so by following the instructions 
+at https://finufft.readthedocs.io/en/latest/install.html.
+
+On Linux, in short, use the following commands while making sure to replace `/path/to/FReSCo/` in the first cmake 
+command with the actual path to your FReSCo directory on your machine:
+
+```bash
+git clone https://github.com/flatironinstitute/finufft.git
+cd finufft
+mkdir build
+cd build
+cmake .. -D FINUFFT_BUILD_TESTS=ON --install-prefix /path/to/FReSCo/finufft
+cmake --build . -j
+ctest
+cmake --install .
+```
+
+On Macs (for both Intel and Apple silicon), we recommend using
+[homebrew](https://brew.sh) to install the necessary software
+and libraries for compilation. Once homebrew is installed, use
+
+```bash
+brew install gcc@13 cmake fftw pkg-config
+```
+
+Among other things, this will install version 13 of gcc and give you
+access to the `gcc-13` and `g++-13` commands. Be aware that Apple
+provides its own compilers under the commands `gcc` and `g++` which,
+however, just run clang and not the GNU compilers. Since we do not
+support using the clang compilers at the moment, we have to make
+sure that the compilers installed by homebrew are used in the
+following. If you installed a different version of gcc, make sure to
+replace the `gcc-13` and `g++-13` parts accordingly.
+
+After installing the necessary software, you can install FINUFFT by following the
+commands above. Only make sure that cmake finds the correct GNU compilers and the fftw library:
+
+```bash
+cmake .. -DFINUFFT_BUILD_TESTS=ON -DCMAKE_C_COMPILER=gcc-13 -DCMAKE_CXX_COMPILER=g++-13 -DCMAKE_PREFIX_PATH=$(brew --prefix fftw) --install-prefix /path/to/FReSCo/finufft
+```
+
+Again, make sure to replace `/path/to/FReSCo/` by the actual path to your FReSCo directory in this command.
+
+### Installation of FReSCo
 
 Navigate to the FReSCo directory:
 
-`cd /path/to/FReSCo`
+```bash
+cd /path/to/FReSCo
+```
 
-Create a new conda environment named `fresco` from `fresco.yml`, which will install all packages using the channel `conda-forge`
+Create a new conda environment named `fresco` from `fresco.yml`, which will install all packages using the channel `conda-forge`.
 
-`conda env create --name fresco --file=fresco.yml`
+```bash
+conda env create --name fresco --file=fresco.yml
+```
 
-(Download and install FINUFFT: https://finufft.readthedocs.io/en/latest/install.html)
+Activate your new conda environment. After this step your terminal should lead with the environment name (here we made it `fresco`):
 
-Activate your new conda environment. After this step your terminal should lead with the environment name (here we made it `fresco`)
+```bash
+conda activate fresco
+```
 
-`conda activate fresco`
+If you installed finufft in a different location than `/path/to/FReSCo/finufft` (because you modified the installation 
+prefix), you will need to edit the `finufft_dir` variable in `setup.py` before proceeding. While in the FReSCo 
+directory, open `setup.py` in a text editor and find the variable `finufft_dir=/path/to/finufft`. Edit it to be the path 
+to your finufft directory. Save and exit the text editor.
 
-While in the FReSCo directory, open `setup.py` in a text editor and find the variable `finufft_dir=/path/to/finufft`. Edit it to be the path to your finufft directory.
+Run `setup.py` as follows:
 
-Save and exit the text editor
+```bash
+python setup.py build_ext -i
+```
 
-Run `setup.py` as follows (the flag --omp is optional for allowing parallelization over multiple cores):
+On MacOs, set the deployment target to your current MacOs version to avoid errors (the Gnu compilers and libraries from 
+homebrew are detected within the Python script):
 
-`python setup.py build_ext -i --omp`
+```bash
+MACOSX_DEPLOYMENT_TARGET=$(sw_vers -productVersion) python setup.py build_ext -i
+```
 
-(If at any point you would like to rebuild the package from scratch, please run `rm -r build/ cythonize.dat` before running `setup` using the previous line again)
+(If at any point you would like to rebuild the package from scratch, please run `rm -r build/ cythonize.dat` before 
+running `setup` using the previous line again.)
 
 If you are using Jupyter notebooks, create a kernel from the conda environment as follows:
 
-`python -m ipykernel install --user --name=fresco`
+```bash
+python -m ipykernel install --user --name=fresco
+```
 
 Optional packages for some examples:
 
-`pip install jscatter`
+```
+pip install jscatter
+```
 
 ## Usage
 
@@ -80,11 +151,15 @@ If you are using Jupyter notebooks, you will also have to add it to your `JUPYTE
 
 Our 'potentials' ('loss functions' if that's more your persuasion) can be imported by name:
 
-`from FReSCo.potentials import UwU, UwNU, NUwU, NUwNU`
+```python
+from fresco.potentials import UwU, UwNU, NUwU, NUwNU
+```
 
 Similarly, our provided minimizers can also be imported
 
-`from FReSCo.optimize import LBFGS_CPP, ModifiedFireCPP`
+```python
+from fresco.optimize import LBFGS_CPP, ModifiedFireCPP
+```
 
 Each of these are classes that need to be instantiated. See examples for demonstrations.
 
