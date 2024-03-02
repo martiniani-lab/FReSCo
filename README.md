@@ -13,7 +13,7 @@ The structure factors depicted below are the measured structure factors of the r
 
 ![](./images/uniform_nonuniform.png)
 
-We recommend reading our preprint *Fast Generation of Spectrally-Shaped Disorder* at https://arxiv.org/abs/2305.15693 for more in-depth details of our algorithm.
+We recommend reading our preprint *Fast Generation of Spectrally-Shaped Disorder* at https://arxiv.org/abs/2305.15693 for more in-depth details of our algorithm. We also have a video submission to the DSOFT Gallery of Soft Matter ![here](https://www.youtube.com/watch?v=A-CNb0IMXQw).
 
 ## Installation - Docker
 
