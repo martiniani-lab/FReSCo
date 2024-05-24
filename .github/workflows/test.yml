@@ -1,0 +1,137 @@
+name: CMake
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+env:
+  # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
+  BUILD_TYPE: Release
+
+jobs:
+  linux:
+    # The CMake configure and build commands are platform agnostic and should work equally well on Windows or Mac.
+    # You can convert this to a matrix build if you need cross-platform coverage.
+    # See: https://docs.github.com/en/free-pro-team@latest/actions/learn-github-actions/managing-complex-workflows#using-a-build-matrix
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash -l {0}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - uses: conda-incubator/setup-miniconda@v3
+        with:
+          activate-environment: fresco
+          auto-activate-base: false
+          environment-file: fresco.yml
+      - name: Update apt
+        run: sudo apt-get update
+      - name: Install gcc-12/g++-12
+        run: |
+          sudo apt-get install -y gcc-12 g++-12
+          sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-12 100
+          sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-12 100
+      - name: Install dependencies
+        run: |
+          sudo apt-get install -y cmake
+          sudo apt-get install -y libfftw3-dev
+      - name: Get gtest
+        run: |
+          cd cpp_tests
+          bash get_gtest.sh
+      - name: Build C++ tests
+        run: |
+          cd cpp_tests/source 
+          mkdir build && cd build
+          cmake ../
+          cmake --build . -j
+      - name: Run C++ tests
+        run: |
+          cd cpp_tests/source/build
+          ./test_main
+      - name: Clone FINUFFT
+        run: |
+          git clone https://github.com/flatironinstitute/finufft.git finufft_repository
+      - name: Build FINUFFT
+        run: |
+          mkdir finufft
+          cd finufft_repository
+          mkdir build
+          cd build
+          cmake .. -D FINUFFT_BUILD_TESTS=ON --install-prefix $(readlink -fn ../../finufft)
+          cmake --build . -j
+      - name: Test FINUFFT
+        run: |
+          cd finufft_repository/build
+          ctest
+      - name: Install FINUFFT
+        run: |
+          cd finufft_repository/build
+          cmake --install .
+      - name: Compile FReSCo
+        run: python setup.py build_ext -i
+      - name: Try import
+        run: |
+          python -c "from fresco.potentials import UwU, UwNU, NUwU, NUwNU"
+          python -c "from fresco.optimize import LBFGS_CPP, ModifiedFireCPP"
+
+  mac:
+    runs-on: macos-latest
+    defaults:
+      run:
+        shell: bash -l {0}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Install homebrew
+        uses: Homebrew/actions/setup-homebrew@master
+      - name: Install software and libraries
+        run: brew install gcc@13 cmake fftw pkg-config wget
+      - uses: conda-incubator/setup-miniconda@v3
+        with:
+          activate-environment: fresco
+          auto-activate-base: false
+          environment-file: fresco.yml
+      - name: Get gtest
+        run: |
+          cd cpp_tests
+          bash get_gtest.sh
+      - name: Build C++ tests
+        run: |
+          cd cpp_tests/source 
+          mkdir build && cd build
+          cmake -DCMAKE_C_COMPILER=gcc-13 -DCMAKE_CXX_COMPILER=g++-13 ../
+          cmake --build . -j
+      - name: Run C++ tests
+        run: |
+          cd cpp_tests/source/build
+          ./test_main
+      - name: Clone FINUFFT
+        run: |
+          git clone https://github.com/flatironinstitute/finufft.git finufft_repository
+      - name: Build FINUFFT
+        run: |
+          mkdir finufft
+          cd finufft_repository
+          mkdir build
+          cd build
+          cmake .. -DFINUFFT_BUILD_TESTS=ON -DCMAKE_C_COMPILER=gcc-13 -DCMAKE_CXX_COMPILER=g++-13 -DCMAKE_PREFIX_PATH=$(brew --prefix fftw) --install-prefix $(readlink -fn ../../finufft)
+          cmake --build . -j
+      - name: Test FINUFFT
+        run: |
+          cd finufft_repository/build
+          ctest
+      - name: Install FINUFFT
+        run: |
+          cd finufft_repository/build
+          cmake --install .
+      - name: Compile FReSCo
+        run: MACOSX_DEPLOYMENT_TARGET=$(sw_vers -productVersion) python setup.py build_ext -i
+      - name: Try fresco import
+        run: |
+          python -c "from fresco.potentials import UwU, UwNU, NUwU, NUwNU"
+          python -c "from fresco.optimize import LBFGS_CPP, ModifiedFireCPP"
+
