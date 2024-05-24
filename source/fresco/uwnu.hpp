@@ -86,7 +86,7 @@ class UwNU: public BasePotential{
 
         virtual double get_energy(const std::vector<double>& points)
         {
-	    std::vector<std::complex<double>> rho(Nk), c(points.size());
+	        std::vector<std::complex<double>> rho(Nk), c(points.size());
             double rhotot = 1.0;
             double Skdiff, Skdiff2;
             double phi = 0.0;
@@ -99,28 +99,28 @@ class UwNU: public BasePotential{
             finufft_execute(plan2, &rho[0], &c[0]);
             
             for (size_t i = 0; i < rho.size(); i++)
-	    {
-	        Skdiff = std::real(std::abs(rho[i]));
+            {
+                Skdiff = std::real(std::abs(rho[i]));
                 std::cout << Skdiff << '\n'; 
-	        Skdiff = Skdiff*Skdiff/rhotot-Sk0[i];
+                Skdiff = Skdiff*Skdiff/rhotot-Sk0[i];
                 if(Sk0[i] != 0)
                 {
                     Skdiff /= Sk0[i];
                 }
              
                 Skdiff2 = Skdiff*Skdiff;
-	        phi += V[i]*Skdiff2;
-	    } 
+                phi += V[i]*Skdiff2;
+            } 
             return phi;
         }
 
         virtual double get_energy_gradient(const std::vector<double>& points, std::vector<double>& grad)
         {
-	    std::vector<std::complex<double>> rho(Nk), f(Nk), c(points.size());
+	        std::vector<std::complex<double>> rho(Nk), f(Nk), c(points.size());
             double rhotot = 1.0;
             double Skdiff, Skdiff2;
             double phi = 0.0;
-	    grad.assign(grad.size(),0);
+	        grad.assign(grad.size(),0);
             for (size_t j = 0; j < points.size(); j++)
             {
                 c[j] = points[j];
@@ -129,25 +129,24 @@ class UwNU: public BasePotential{
             finufft_execute(plan2, &rho[0], &c[0]);
             
             for (size_t i = 0; i < rho.size(); i++)
-	    {
-	        Skdiff = std::real(std::abs(rho[i]));
+            {
+                Skdiff = std::real(std::abs(rho[i]));
              
-	        Skdiff = Skdiff*Skdiff/rhotot-Sk0[i];
+                Skdiff = Skdiff*Skdiff/rhotot-Sk0[i];
                 if(Sk0[i] != 0)
                 {
                     Skdiff /= Sk0[i];
                 }
              
                 Skdiff2 = Skdiff*Skdiff;
-	        phi += V[i]*Skdiff2;
-	        f[i] = 4/rhotot*V[i]*Skdiff*rho[i];
-	        if(Sk0[i] != 0)
+                phi += V[i]*Skdiff2;
+                f[i] = 4/rhotot*V[i]*Skdiff*rho[i];
+                if(Sk0[i] != 0)
                 {
                     f[i] /= Sk0[i];
                 }
-	    } 
+            } 
             
-         
             // Calculate Gradient
             finufft_execute(plan1, &f[0], &c[0]);
             #pragma omp parallel for
