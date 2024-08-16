@@ -46,7 +46,7 @@ If instead you prefer using a conda environment, follow these steps after downlo
 
 ### Installation of FINUFFT dependency
 
-If you have not already installed FINUFFT, you can do so by following the instructions 
+If you have not already installed version 2.2 of FINUFFT, you can do so by following the instructions 
 at https://finufft.readthedocs.io/en/latest/install.html.
 
 On Linux, in short, use the following commands while making sure to replace `/path/to/FReSCo/` in the first cmake 
@@ -54,6 +54,7 @@ command with the actual path to your FReSCo directory on your machine:
 
 ```bash
 git clone https://github.com/flatironinstitute/finufft.git
+git checkout tags/v2.2.0 -b v2.2.0
 cd finufft
 mkdir build
 cd build
@@ -68,23 +69,23 @@ On Macs (for both Intel and Apple silicon), we recommend using
 and libraries for compilation. Once homebrew is installed, use
 
 ```bash
-brew install gcc@13 cmake fftw pkg-config
+brew install gcc@14 cmake fftw pkg-config
 ```
 
-Among other things, this will install version 13 of gcc and give you
-access to the `gcc-13` and `g++-13` commands. Be aware that Apple
+Among other things, this will install version 14 of gcc and give you
+access to the `gcc-14` and `g++-14` commands. Be aware that Apple
 provides its own compilers under the commands `gcc` and `g++` which,
 however, just run clang and not the GNU compilers. Since we do not
 support using the clang compilers at the moment, we have to make
 sure that the compilers installed by homebrew are used in the
 following. If you installed a different version of gcc, make sure to
-replace the `gcc-13` and `g++-13` parts accordingly.
+replace the `gcc-14` and `g++-14` parts accordingly.
 
 After installing the necessary software, you can install FINUFFT by following the
 commands above. Only make sure that cmake finds the correct GNU compilers and the fftw library:
 
 ```bash
-cmake .. -DFINUFFT_BUILD_TESTS=ON -DCMAKE_C_COMPILER=gcc-13 -DCMAKE_CXX_COMPILER=g++-13 -DCMAKE_PREFIX_PATH=$(brew --prefix fftw) --install-prefix /path/to/FReSCo/finufft
+cmake .. -DFINUFFT_BUILD_TESTS=ON -DCMAKE_C_COMPILER=gcc-14 -DCMAKE_CXX_COMPILER=g++-14 -DCMAKE_PREFIX_PATH=$(brew --prefix fftw) --install-prefix /path/to/FReSCo/finufft
 ```
 
 Again, make sure to replace `/path/to/FReSCo/` by the actual path to your FReSCo directory in this command.
