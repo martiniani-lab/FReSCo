@@ -55,6 +55,7 @@ jobs:
       - name: Clone FINUFFT
         run: |
           git clone https://github.com/flatironinstitute/finufft.git finufft_repository
+          git fetch --all --tags --prune
           git checkout tags/v2.2.0 -b v2.2.0
       - name: Build FINUFFT
         run: |
@@ -113,6 +114,7 @@ jobs:
       - name: Clone FINUFFT
         run: |
           git clone https://github.com/flatironinstitute/finufft.git finufft_repository
+          git fetch --all --tags --prune
           git checkout tags/v2.2.0 -b v2.2.0
       - name: Build FINUFFT
         run: |
