@@ -175,6 +175,7 @@ If you use FReSCo in your research, please cite the following paper, in which we
 > Physical Review E 110 (3), 034122 (2024)
 > 
 > https://journals.aps.org/pre/abstract/10.1103/PhysRevE.110.034122
+> 
 > https://arxiv.org/abs/2305.15693
 
 Our algorithm utlizes the Flatiron Nonuniform Fast Fourier Transform
