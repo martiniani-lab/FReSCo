@@ -166,12 +166,15 @@ Each of these are classes that need to be instantiated. See examples for demonst
 
 ## References and Citing
 
-Our algorithm is described in our preprint
+If you use FReSCo in your research, please cite the following paper, in which we describe the algorithm
 
 > *Fast Generation of Spectrally-Shaped Disorder*
 > 
 > Aaron Shih, Mathias Casiulis, and Stefano Martiniani
 >
+> Physical Review E 110 (3), 034122 (2024)
+> 
+> https://journals.aps.org/pre/abstract/10.1103/PhysRevE.110.034122
 > https://arxiv.org/abs/2305.15693
 
 Our algorithm utlizes the Flatiron Nonuniform Fast Fourier Transform
