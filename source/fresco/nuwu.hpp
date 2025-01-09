@@ -54,7 +54,11 @@ class NUwU: public BasePotential{
         std::vector<int> calculate_Kvec(size_t Vsize)
         {
             size_t K_;
-            if (ndim ==2)
+            if (ndim == 1)
+            {
+                K_ = size_t((Vsize-1)/2);
+            }
+            else if (ndim ==2)
             {
                 K_ = size_t((sqrt(Vsize)-1)/2);
             }
@@ -68,15 +72,24 @@ class NUwU: public BasePotential{
             }
             std::vector<int> _Kvec(K_*2+1);
             for (size_t i=0; i < _Kvec.size(); i++)
-	    {
-		_Kvec[i] = int(i)-int(K_);
-	    }
+            {
+                _Kvec[i] = int(i)-int(K_);
+            }
             return _Kvec;
         }
 
         std::vector<double> calculate_Kmag(std::vector<int> Kvec)
         {
-            if(ndim == 2)
+            if(ndim == 1)
+            {
+                std::vector<double> _Kmag(Kvec.size());
+                for (size_t i=0; i < Kvec.size(); i++)
+   	            {
+                    _Kmag[i] = abs(Kvec[i]);
+	            }
+                return _Kmag;
+            }
+            else if(ndim == 2)
             {
                 std::vector<double> _Kmag(Kvec.size()*Kvec.size());
                 for (size_t i=0; i < Kvec.size(); i++)

@@ -15,4 +15,3 @@ dependencies:
   - daiquiri>=3.0.0
   - cython=0.29.32
   - future>=0.18.2
-  - setuptools < 60.0
