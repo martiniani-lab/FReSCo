@@ -1,7 +1,7 @@
 # FReSCo
 Fast Reciprocal Space Correlator
 
-FReSCo is a Python package (written in c++ and wrapped with cython) to impose reciprocal-space (aka Fourier-space, k-space) constraints on a real space system. For example, starting from a random point pattern, we can adjust the positions of the points to find a point pattern whose structure factor looks like Van Gogh's Starry Night:
+FReSCo is a Python package (written in c++ and wrapped with cython) to impose reciprocal-space (aka Fourier-space, k-space) constraints on a real space system in 1d, 2d, or 3d. For example, starting from a random point pattern, we can adjust the positions of the points to find a point pattern whose structure factor looks like Van Gogh's Starry Night:
 
 ![](./images/fresco_diagram.png)
 
