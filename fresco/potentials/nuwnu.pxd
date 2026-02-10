@@ -6,7 +6,7 @@ cimport fresco.potentials._fresco as _fresco
 
 cdef extern from "fresco/nuwnu.hpp" namespace "fresco":
     cdef cppclass cppNUwNU "fresco::NUwNU":
-        cppNUwNU(vector[double]&, vector[double]&, vector[double]&, vector[double]&, vector[double]&, double) except +
+        cppNUwNU(vector[double]&, vector[double]&, vector[double]&, vector[double]&, vector[double]&, double, double) except +
         double get_energy(vector[double]&) except +
         double get_energy_gradient(vector[double]&, vector[double]&) except +
 

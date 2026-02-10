@@ -8,7 +8,7 @@ import warnings
 
 cdef class _Cdef_NUwNU(_fresco.BasePotential):
     def __cinit__(self, np.ndarray radii, np.ndarray K, np.ndarray Sk, np.ndarray V, 
-                        np.ndarray L, double eps=1e-6):
+                        np.ndarray L, double eps=1e-6, double variance = 0.0):
         self.radii = radii
         self.N = len(radii)
         self.K = K
@@ -18,9 +18,10 @@ cdef class _Cdef_NUwNU(_fresco.BasePotential):
         self.L = L
         self.ndim = len(L)
         self.eps = eps
+        self.variance = variance
         self.grad = np.zeros(self.N*self.ndim)
         self.thisptr = shared_ptr[_fresco.cppBasePotential](<_fresco.cppBasePotential*>new 
-        cppNUwNU(self.radii, self.K, self.Sk, self.V, self.L, self.eps))
+        cppNUwNU(self.radii, self.K, self.Sk, self.V, self.L, self.eps, self.variance))
 
     def get_energy(self, x):
         cdef double energy = (<cppNUwNU*>self.thisptr.get()).get_energy(x)
