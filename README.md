@@ -137,10 +137,11 @@ If you are using Jupyter notebooks, create a kernel from the conda environment a
 python -m ipykernel install --user --name=fresco
 ```
 
-Optional packages for some examples:
+Optional packages for some examples (including the python interface to finufft):
 
 ```
 pip install jscatter
+pip install finufft
 ```
 
 ## Usage

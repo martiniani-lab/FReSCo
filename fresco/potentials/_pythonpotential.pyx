@@ -19,7 +19,7 @@ from fresco.potentials._fresco cimport shared_ptr
 # question: should I define PY_ARRAY_UNIQUE_SYMBOL?  And how can I?
 cnp.import_array()
 
-cdef extern from "fresco/python_potential_wrapper.hpp" namespace "ha":
+cdef extern from "fresco/python_potential_wrapper.hpp" namespace "fresco":
     cdef cppclass  cppPythonPotential "fresco::PythonPotential":
         cppPythonPotential(PyObject *potential) except +
 
