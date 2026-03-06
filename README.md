@@ -54,8 +54,8 @@ command with the actual path to your FReSCo directory on your machine:
 
 ```bash
 git clone https://github.com/flatironinstitute/finufft.git
-git checkout tags/v2.2.0 -b v2.2.0
 cd finufft
+git checkout tags/v2.2.0 -b v2.2.0
 mkdir build
 cd build
 cmake .. -D FINUFFT_BUILD_TESTS=ON --install-prefix /path/to/FReSCo/finufft
